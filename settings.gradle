@@ -1,0 +1,12 @@
+rootProject.name = 'optimize-data-insert'
+
+include 'vm1'
+include 'vm2'
+include 'vm3'
+include 'vm4'
+include 'vm5'
+include 'vm6'
+include 'vm7'
+include 'vm8'
+include 'vm9'
+include 'vm10'

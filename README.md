@@ -1,0 +1,1 @@
+Ver1. 로컬 메모리에서 오라클 DataBase로 batch insert

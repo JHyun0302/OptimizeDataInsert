@@ -1,0 +1,48 @@
+global:
+  scrape_interval: 15s # 데이터 수집 주기
+
+scrape_configs:
+  - job_name: 'module_1_to_17'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets:
+          - 'vm1:8080'
+        labels:
+          instance: "vm1"
+      - targets:
+          - 'vm2:8080'
+        labels:
+          instance: "vm2"
+      - targets:
+          - 'vm3:8080'
+        labels:
+          instance: "vm3"
+      - targets:
+          - 'vm4:8080'
+        labels:
+          instance: "vm4"
+      - targets:
+          - 'vm5:8080'
+        labels:
+          instance: "vm5"
+      - targets:
+          - 'vm6:8080'
+        labels:
+          instance: "vm6"
+      - targets:
+          - 'vm7:8080'
+        labels:
+          instance: "vm7"
+      - targets:
+          - 'vm8:8080'
+        labels:
+          instance: "vm8"
+      - targets:
+          - 'vm9:8080'
+        labels:
+          instance: "vm9"
+      - targets:
+          - 'vm10:8080'
+        labels:
+          instance: "vm10"
+
