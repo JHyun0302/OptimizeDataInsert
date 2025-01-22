@@ -11,6 +11,16 @@ services:
       - ORACLE_ALLOW_REMOTE=true
       - ORACLE_DISABLE_ASYNCH_IO=true
 
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    networks:
+      - optimize_data_insert_network
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -44,6 +54,7 @@ services:
       - "8081:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -55,6 +66,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-1
 
   vm2:
     image: optimize-data-insert-vm2:1.0.0-SNAPSHOT

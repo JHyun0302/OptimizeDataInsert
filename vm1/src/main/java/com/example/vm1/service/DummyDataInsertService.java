@@ -2,6 +2,7 @@ package com.example.vm1.service;
 
 import com.example.vm1.entity.TbDtfHrasAuto;
 import com.example.vm1.entity.TbDtfHrasAutoPk;
+import com.example.vm1.redis.RedisStreamService;
 import com.example.vm1.repository.TbDtfHrasAutoRepository;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
@@ -24,6 +25,8 @@ import java.util.Random;
 @Transactional(readOnly = true)
 public class DummyDataInsertService {
 
+    private final RedisStreamService redisStreamService;
+
     private final TbDtfHrasAutoRepository repository;
 
     private final Counter successCounter;
@@ -37,7 +40,8 @@ public class DummyDataInsertService {
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
-    public DummyDataInsertService(TbDtfHrasAutoRepository repository, MeterRegistry meterRegistry) {
+    public DummyDataInsertService(RedisStreamService redisStreamService, TbDtfHrasAutoRepository repository, MeterRegistry meterRegistry) {
+        this.redisStreamService = redisStreamService;
         this.repository = repository;
         this.successCounter = meterRegistry.counter("dummy_data.insert.success");
         this.failureCounter = meterRegistry.counter("dummy_data.insert.failure");
@@ -58,17 +62,14 @@ public class DummyDataInsertService {
 
                     // 배치 크기마다 flush 및 clear 수행
                     if (dummyData.size() % batchSize == 0) { // batch_size와 동일하게 설정
-                        repository.saveAll(dummyData); // INSERT 실행
-                        repository.flush();            // 강제 Flush
-                        dummyData.clear();             // 1차 캐시 Clear
+                        dummyData.forEach(redisStreamService::writeToStream); // Redis에 저장
+                        dummyData.clear();
                     }
                 }
 
                 // 남은 데이터 처리
                 if (!dummyData.isEmpty()) {
-                    repository.saveAll(dummyData);
-                    repository.flush();
-                    dummyData.clear();
+                    dummyData.forEach(redisStreamService::writeToStream);
                 }
 
                 successCounter.increment();
