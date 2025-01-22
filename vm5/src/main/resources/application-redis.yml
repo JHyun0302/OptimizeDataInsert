@@ -1,0 +1,7 @@
+#spring:
+#  data:
+#    redis:
+#      memStorage:
+#        host: localhost
+#        port: 6379
+

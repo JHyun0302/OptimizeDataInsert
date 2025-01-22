@@ -1,0 +1,242 @@
+services:
+  oracle:
+    image: oracleinanutshell/oracle-xe-11g
+    container_name: oracle
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "1522:1521"
+    environment:
+      - TZ=Asia/Seoul
+      - ORACLE_ALLOW_REMOTE=true
+      - ORACLE_DISABLE_ASYNCH_IO=true
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./provisioning/dashboards/my_dashboard.json:/etc/grafana/provisioning/dashboards/my_dashboard.json
+
+  vm1:
+    image: optimize-data-insert-vm1:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8081:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm2:
+    image: optimize-data-insert-vm2:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8082:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm3:
+    image: optimize-data-insert-vm3:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8083:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm4:
+    image: optimize-data-insert-vm4:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8084:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm5:
+    image: optimize-data-insert-vm5:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8085:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm6:
+    image: optimize-data-insert-vm6:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8086:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm7:
+    image: optimize-data-insert-vm7:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8087:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm8:
+    image: optimize-data-insert-vm8:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8088:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm9:
+    image: optimize-data-insert-vm9:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8089:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+  vm10:
+    image: optimize-data-insert-vm10:1.0.0-SNAPSHOT
+    networks:
+      - optimize_data_insert_network
+    ports:
+      - "8091:8080"
+    depends_on:
+      - oracle
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_USERNAME=SYSTEM
+      - SPRING_DATASOURCE_PASSWORD=oracle
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+
+networks:
+  optimize_data_insert_network:
+    driver: bridge
+

@@ -1,0 +1,23 @@
+management:
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  tomcat:
+    mbeanregistry:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
