@@ -29,6 +29,7 @@ dependencies {
 
     // DB
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
     implementation 'com.oracle.database.jdbc:ojdbc11:23.3.0.23.09'
     runtimeOnly 'com.h2database:h2'
 

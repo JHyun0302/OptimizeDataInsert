@@ -12,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     open-in-view: false
     properties:
@@ -23,3 +23,6 @@ spring:
         order_updates: true
         jdbc:
           batch_size: 1000     # 배치 사이즈 지정
+
+  application:
+    consumer-name: consumer-1

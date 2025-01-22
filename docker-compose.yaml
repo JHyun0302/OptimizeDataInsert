@@ -11,6 +11,16 @@ services:
       - ORACLE_ALLOW_REMOTE=true
       - ORACLE_DISABLE_ASYNCH_IO=true
 
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    networks:
+      - optimize_data_insert_network
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -44,6 +54,7 @@ services:
       - "8081:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -55,6 +66,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-1
 
   vm2:
     image: optimize-data-insert-vm2:1.0.0-SNAPSHOT
@@ -64,6 +78,7 @@ services:
       - "8082:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -75,6 +90,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-2
 
   vm3:
     image: optimize-data-insert-vm3:1.0.0-SNAPSHOT
@@ -84,6 +102,7 @@ services:
       - "8083:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -95,6 +114,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-3
 
   vm4:
     image: optimize-data-insert-vm4:1.0.0-SNAPSHOT
@@ -104,6 +126,7 @@ services:
       - "8084:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -115,6 +138,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-4
 
   vm5:
     image: optimize-data-insert-vm5:1.0.0-SNAPSHOT
@@ -124,6 +150,7 @@ services:
       - "8085:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -135,6 +162,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-5
 
   vm6:
     image: optimize-data-insert-vm6:1.0.0-SNAPSHOT
@@ -144,6 +174,7 @@ services:
       - "8086:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -155,6 +186,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-6
 
   vm7:
     image: optimize-data-insert-vm7:1.0.0-SNAPSHOT
@@ -164,6 +198,7 @@ services:
       - "8087:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -175,6 +210,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-7
 
   vm8:
     image: optimize-data-insert-vm8:1.0.0-SNAPSHOT
@@ -184,6 +222,7 @@ services:
       - "8088:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -195,6 +234,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-8
 
   vm9:
     image: optimize-data-insert-vm9:1.0.0-SNAPSHOT
@@ -204,6 +246,7 @@ services:
       - "8089:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -215,6 +258,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-9
 
   vm10:
     image: optimize-data-insert-vm10:1.0.0-SNAPSHOT
@@ -224,6 +270,7 @@ services:
       - "8091:8080"
     depends_on:
       - oracle
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -235,6 +282,9 @@ services:
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - spring.application.consumer-name=consumer-10
 
 networks:
   optimize_data_insert_network:
