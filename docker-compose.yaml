@@ -1,6 +1,6 @@
 services:
   oracle:
-    image: oracleinanutshell/oracle-xe-11g
+    image: oracle/database:19.3.0-ee
     container_name: oracle
     networks:
       - optimize_data_insert_network
@@ -10,6 +10,10 @@ services:
       - TZ=Asia/Seoul
       - ORACLE_ALLOW_REMOTE=true
       - ORACLE_DISABLE_ASYNCH_IO=true
+      - ORACLE_SID=ORCL  # SID를 ORCL로 설정
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
 
   redis:
     image: redis:latest
@@ -56,7 +60,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -80,7 +84,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -104,7 +108,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -128,7 +132,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -152,7 +156,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -176,7 +180,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -200,7 +204,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -224,7 +228,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -248,7 +252,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -272,7 +276,7 @@ services:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
