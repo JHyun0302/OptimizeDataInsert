@@ -22,7 +22,9 @@ spring:
         order_inserts: true
         order_updates: true
         jdbc:
-          batch_size: 1000     # 배치 사이즈 지정
+          batch_size: 1000     # 약 3.55분에 1200만건 처리
+#          batch_size: 20000     # 약 1.8분에 1200만건 처리
 
   application:
     consumer-name: consumer-1
+    role: consumer

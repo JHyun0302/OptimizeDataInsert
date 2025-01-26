@@ -40,6 +40,9 @@ public class DummyDataInsertService {
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
+    @Value("${producer.interval.ms:1000}") // 프로듀서의 인터벌 (기본값: 1000ms)
+    private long producerInterval;
+
     public DummyDataInsertService(RedisStreamService redisStreamService, TbDtfHrasAutoRepository repository, MeterRegistry meterRegistry) {
         this.redisStreamService = redisStreamService;
         this.repository = repository;
@@ -58,6 +61,7 @@ public class DummyDataInsertService {
 
                 for (int i = 0; i < batchSize; i++) {
                     TbDtfHrasAuto record = generateDummyRecord(i);
+                    //Thread.sleep(producerInterval); // 인터벌 추가
                     dummyData.add(record);
 
                     // 배치 크기마다 flush 및 clear 수행
@@ -107,4 +111,3 @@ public class DummyDataInsertService {
                 .build();
     }
 }
-
