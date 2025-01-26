@@ -18,7 +18,7 @@ public class DummyDataScheduler {
     @Value("${spring.application.role}")
     private String role;
 
-    @Scheduled(fixedRate = 10000) // 10초마다 실행
+    @Scheduled(fixedRate = 5000) // 10초마다 실행
     public void scheduleInsertDummyData() {
         if ("saveDataInRedis".equals(role)) {
             redisInsertService.saveHrasDataInRedis();
