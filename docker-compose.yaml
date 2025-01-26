@@ -1,6 +1,6 @@
 services:
   oracle:
-    image: oracleinanutshell/oracle-xe-11g
+    image: oracle/database:19.3.0-ee
     container_name: oracle
     networks:
       - optimize_data_insert_network
@@ -10,6 +10,10 @@ services:
       - TZ=Asia/Seoul
       - ORACLE_ALLOW_REMOTE=true
       - ORACLE_DISABLE_ASYNCH_IO=true
+      - ORACLE_SID=ORCL  # SID를 ORCL로 설정
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
 
   redis:
     image: redis:latest
@@ -51,12 +55,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8081:8080"
+      - "8181:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -75,12 +79,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8082:8080"
+      - "8182:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -99,12 +103,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8083:8080"
+      - "883:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -123,12 +127,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8084:8080"
+      - "8184:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -147,12 +151,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8085:8080"
+      - "8185:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -171,12 +175,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8086:8080"
+      - "8186:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -195,12 +199,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8087:8080"
+      - "8187:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -219,12 +223,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8088:8080"
+      - "8188:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -243,12 +247,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8089:8080"
+      - "8189:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -267,12 +271,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "8091:8080"
+      - "8190:8080"
     depends_on:
       - oracle
       - redis
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle:1521:XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
       - SPRING_DATASOURCE_PASSWORD=oracle
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
@@ -289,4 +293,3 @@ services:
 networks:
   optimize_data_insert_network:
     driver: bridge
-
