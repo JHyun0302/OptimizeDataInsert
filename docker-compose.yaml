@@ -71,7 +71,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.role=saveDataInDataBase
+      - spring.application.role=saveDataInRedis
 
   vm2:
     image: optimize-data-insert-vm2:1.0.0-SNAPSHOT

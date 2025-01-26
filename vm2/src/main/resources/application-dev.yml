@@ -22,7 +22,7 @@ spring:
         order_inserts: true
         order_updates: true
         jdbc:
-          batch_size: 1000     # 배치 사이즈 지정
+          batch_size: 10000     # 배치 사이즈 지정
 
   application:
     role: saveDataInRedis
