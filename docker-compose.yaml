@@ -71,7 +71,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-1
+      - spring.application.role=saveDataInDataBase
 
   vm2:
     image: optimize-data-insert-vm2:1.0.0-SNAPSHOT
@@ -95,7 +95,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-2
+      - spring.application.role=saveDataInRedis
 
   vm3:
     image: optimize-data-insert-vm3:1.0.0-SNAPSHOT
@@ -119,7 +119,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-3
+      - spring.application.role=saveDataInRedis
 
   vm4:
     image: optimize-data-insert-vm4:1.0.0-SNAPSHOT
@@ -143,7 +143,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-4
+      - spring.application.role=saveDataInRedis
 
   vm5:
     image: optimize-data-insert-vm5:1.0.0-SNAPSHOT
@@ -167,7 +167,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-5
+      - spring.application.role=saveDataInRedis
 
   vm6:
     image: optimize-data-insert-vm6:1.0.0-SNAPSHOT
@@ -191,7 +191,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-6
+      - spring.application.role=saveDataInRedis
 
   vm7:
     image: optimize-data-insert-vm7:1.0.0-SNAPSHOT
@@ -215,7 +215,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-7
+      - spring.application.role=saveDataInRedis
 
   vm8:
     image: optimize-data-insert-vm8:1.0.0-SNAPSHOT
@@ -239,7 +239,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-8
+      - spring.application.role=saveDataInRedis
 
   vm9:
     image: optimize-data-insert-vm9:1.0.0-SNAPSHOT
@@ -263,7 +263,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-9
+      - spring.application.role=saveDataInRedis
 
   vm10:
     image: optimize-data-insert-vm10:1.0.0-SNAPSHOT
@@ -287,7 +287,7 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.consumer-name=consumer-10
+      - spring.application.role=saveDataInRedis
 
 networks:
   optimize_data_insert_network:
