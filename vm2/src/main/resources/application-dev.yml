@@ -4,11 +4,11 @@ spring:
     url: jdbc:oracle:thin:@//oracle:1521/ORCL
     username: SYSTEM
     password: oracle
-#    hikari:
-#      minimum-idle: 5         # 최소 유휴 커넥션 수
-#      maximum-pool-size: 20   # 최대 커넥션 풀 크기
-#      idle-timeout: 60000     # 커넥션 유휴 타임아웃(밀리초)
-#      pool-name: MyHikariPool # 풀 이름
+    hikari:
+      minimum-idle: 5         # 최소 유휴 커넥션 수
+      maximum-pool-size: 20   # 최대 커넥션 풀 크기
+      idle-timeout: 60000     # 커넥션 유휴 타임아웃(밀리초)
+      pool-name: MyHikariPool # 풀 이름
 
   jpa:
     hibernate:

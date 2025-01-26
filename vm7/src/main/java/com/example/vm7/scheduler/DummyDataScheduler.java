@@ -1,7 +1,7 @@
 package com.example.vm7.scheduler;
 
-import com.example.vm7.redis.RedisStreamConsumer;
-import com.example.vm7.service.DummyDataInsertService;
+import com.example.vm7.redis.RedisInsertService;
+import com.example.vm7.redis.SaveInDataBase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DummyDataScheduler {
 
-    private final RedisStreamConsumer redisStreamConsumer;
+    private final RedisInsertService redisInsertService;
 
-    private final DummyDataInsertService dummyDataInsertService;
+    private final SaveInDataBase saveInDataBase;
 
     @Scheduled(fixedRate = 10000) // 10초마다 실행
     public void scheduleInsertDummyData() {
-        redisStreamConsumer.consumeStream();
-        dummyDataInsertService.insertDummyData();
+        redisInsertService.saveHrasDataInRedis();
+        saveInDataBase.transferHrasDataToDB();
     }
 }
