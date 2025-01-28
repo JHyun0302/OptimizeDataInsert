@@ -37,7 +37,7 @@ public class DummyDataScheduler {
             dataUpdateService.readFromRedisAndInsertToDB(batchSize);
         } else {
             // DB 데이터를 읽고 Update 후 Redis에 저장
-            dataUpdateService.updateDBAndSaveToRedis(startId, endId, batchSize);
+            dataUpdateService.updateDBAndSaveToRedis(startId, endId, batchSize, vmIndex);
         }
     }
 }

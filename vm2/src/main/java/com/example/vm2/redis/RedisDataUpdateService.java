@@ -12,8 +12,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RedisDataUpdateService {
 
     private static final String REDIS_KEY = "hras-data";
+
     private final TbDtfHrasAutoRepository repository;
 
     private final StringRedisTemplate redisTemplate;
@@ -52,58 +57,59 @@ public class RedisDataUpdateService {
     @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
     public void readFromRedisAndInsertToDB(int batchSize) {
         timer.record(() -> {
-            List<String> jsonDataList = redisTemplate.opsForList().range(REDIS_KEY, 0, batchSize - 1);
-            if (jsonDataList == null || jsonDataList.isEmpty()) {
-                log.info("No data found in Redis.");
-                return;
-            }
+            Set<String> keys = redisTemplate.keys(REDIS_KEY + ":*");
 
-            List<TbDtfHrasAuto> records = new ArrayList<>();
-            for (String jsonData : jsonDataList) {
-                try {
-                    TbDtfHrasAuto record = objectMapper.readValue(jsonData, TbDtfHrasAuto.class); // 역직렬화
-                    records.add(record);
-                } catch (Exception e) {
-                    log.error("Failed to deserialize Redis data: {}", e.getMessage());
+            for (String key : keys) {
+                List<String> jsonDataList = redisTemplate.opsForList().range(key, 0, -1); // Redis 리스트에서 데이터 가져오기
+
+                List<TbDtfHrasAuto> hrasDataList = new ArrayList<>();
+                for (String jsonData : jsonDataList) {
+                    try {
+                        TbDtfHrasAuto hrasData = objectMapper.readValue(jsonData, TbDtfHrasAuto.class);
+                        hrasDataList.add(hrasData);
+                    } catch (Exception e) {
+                        log.error("Failed to deserialize HRAS data from Redis key {}: {}", key, e.getMessage());
+                    }
                 }
+
+                if (!hrasDataList.isEmpty()) {
+                    repository.saveAll(hrasDataList); // DB에 배치 저장
+                    repository.flush();
+                    hrasDataList.clear();
+                    log.info("Saved {} HRAS records to DB from Redis key: {}", hrasDataList.size(), key);
+                }
+
+                redisTemplate.delete(key); // 처리 완료 후 Redis 키 삭제
+                log.info("Deleted Redis key: {}", key);
             }
-            log.info("recordSize= {}", records.size());
-
-            repository.saveAll(records);
-            repository.flush();
-            records.clear();
-
-            // Redis에서 처리된 데이터 삭제
-            redisTemplate.opsForList().trim("hras-data", batchSize, -1);
-            log.info("Updated {} records in DB and removed from Redis.", records.size());
         });
     }
 
     @Transactional
     @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
     @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
-    public void updateDBAndSaveToRedis(int startId, int endId, int batchSize) {
+    public void updateDBAndSaveToRedis(int startId, int endId, int batchSize, int vmIndex) {
         timer.record(() -> {
-            log.info("startId, endId = {}, {}", startId, endId);
-            // 정수 기반으로 startId와 endId 전달
-            List<TbDtfHrasAuto> records = repository.findByRange(startId, endId);
-            log.info("Fetched records: {}", records.size()); // Fetched records: 1,200,000
+            String redisKey = REDIS_KEY + ":" + vmIndex;
+            List<TbDtfHrasAuto> records = repository.findByRange(startId, endId); // 정수 기반으로 startId와 endId 전달
+            log.info("Fetched records: {}", records.size());
 
             // 데이터를 배치 단위로 나눔
             List<List<TbDtfHrasAuto>> batches = splitIntoBatches(records, batchSize);
 
             for (List<TbDtfHrasAuto> batch : batches) {
-                batch.forEach(record -> {
-                    repository.updateValues(
-                            generateRandomValue(), // wtlvVal
-                            generateRandomValue(), // flowVal
-                            generateRandomValue(), // velVal
-                            record.getPk().getCsId(),
-                            record.getPk().getPdctDt()
-                    );
-                    saveToRedis(record); // update한 데이터를 Redis에 저장
+                    batch.forEach(record -> {
+                        record.setWtlvVal(generateRandomValue());
+                        record.setFlowVal(generateRandomValue());
+                        record.setVelVal(generateRandomValue());
                 });
+                repository.saveAll(batch);
+                log.info("Updated batch of size: {}", batch.size());
+
+                // Redis에 데이터를 한 번에 저장
+                saveBatchToRedis(batch, redisKey);
             }
+
             log.info("Updated records from {} to {}", startId, endId);
         });
     }
@@ -121,17 +127,35 @@ public class RedisDataUpdateService {
         return new Random().nextLong(1000); // 예: 0~999
     }
 
-    private void saveToRedis(TbDtfHrasAuto record) {
+    private void saveBatchToRedis(List<TbDtfHrasAuto> batch, String redisKey) {
         try {
-            // 객체를 JSON 형식으로 직렬화
-            String jsonRecord = objectMapper.writeValueAsString(record);
+            // JSON 변환
+            List<String> jsonRecords = batch.stream()
+                    .map(record -> {
+                        try {
+                            return objectMapper.writeValueAsString(record);
+                        } catch (Exception e) {
+                            log.error("Failed to serialize record: {}", record, e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-            // Redis에 JSON 데이터 저장
-            redisTemplate.opsForList().rightPush(REDIS_KEY, jsonRecord);
+            if (jsonRecords.isEmpty()) {
+                log.warn("No valid records to save to Redis for key: {}", redisKey);
+                return;
+            }
 
-            log.info("Saved record to Redis: {}", jsonRecord);
+            // Redis 파이프라인 사용
+            redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+                jsonRecords.forEach(json -> connection.rPush(redisKey.getBytes(), json.getBytes()));
+                return null;
+            });
+
+            log.info("Saved batch of {} records to Redis key: {}", batch.size(), redisKey);
         } catch (Exception e) {
-            log.error("Failed to save record to Redis: {}", record, e);
+            log.error("Failed to save batch to Redis key: {}", redisKey, e);
         }
     }
 }
