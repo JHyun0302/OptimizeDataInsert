@@ -1,5 +1,5 @@
 spring:
   data:
     redis:
-      host: ${SPRING_DATA_REDIS_STREAMS_HOST:redis}
-      port: ${SPRING_DATA_REDIS_STREAMS_PORT:6379}
+      host: ${SPRING_DATA_REDIS_SERIALIZE_HOST:redis}
+      port: ${SPRING_DATA_REDIS_SERIALIZE_PORT:6379}

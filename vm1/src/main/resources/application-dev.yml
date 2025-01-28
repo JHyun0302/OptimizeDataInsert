@@ -23,6 +23,3 @@ spring:
         order_updates: true
         jdbc:
           batch_size: 1000     # 배치 사이즈 지정
-
-  application:
-    consumer-name: consumer-1

@@ -1,0 +1,22 @@
+BEGIN
+    FOR i IN 1..12 LOOP
+        INSERT INTO TB_DTF_HRAS_AUTO (CS_ID, PDCT_DT, PROJECT_ID, NAME, RIVER_NAME, RIVER_REACH, RIVER_CODE, WTLV_VAL, FLOW_VAL, VEL_VAL, CREATED_DATE, MODIFIED_DATE)
+        SELECT
+            'CS_' || ((i - 1) * 1000000 + LEVEL) AS CS_ID,
+            SYSDATE - DBMS_RANDOM.VALUE(1, 30) AS PDCT_DT,
+            1000000 + ((i - 1) * 1000000 + LEVEL) AS PROJECT_ID,
+            'Project-' || ((i - 1) * 1000000 + LEVEL) AS NAME,
+            'River-' || (MOD(LEVEL, 5) + 1) AS RIVER_NAME,
+            'Reach-' || (MOD(LEVEL, 10) + 1) AS RIVER_REACH,
+            1000 + MOD(LEVEL, 100) AS RIVER_CODE,
+            ROUND(DBMS_RANDOM.VALUE(0, 500), 2) AS WTLV_VAL,
+            ROUND(DBMS_RANDOM.VALUE(0, 200), 2) AS FLOW_VAL,
+            ROUND(DBMS_RANDOM.VALUE(0, 5), 2) AS VEL_VAL,
+            SYSDATE AS CREATED_DATE,
+            SYSDATE AS MODIFIED_DATE
+        FROM DUAL
+        CONNECT BY LEVEL <= 1000000; -- 한 번에 100만 건 생성
+        COMMIT;
+    END LOOP;
+END;
+/

@@ -1,7 +1,5 @@
-#spring:
-#  data:
-#    redis:
-#      memStorage:
-#        host: localhost
-#        port: 6379
-
+spring:
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_SERIALIZE_HOST:redis}
+      port: ${SPRING_DATA_REDIS_SERIALIZE_PORT:6379}
