@@ -1,4 +1,4 @@
-package com.example.vm10.config;
+package com.example.vm100.config;
 
 import io.micrometer.core.aop.CountedAspect;
 import io.micrometer.core.aop.TimedAspect;

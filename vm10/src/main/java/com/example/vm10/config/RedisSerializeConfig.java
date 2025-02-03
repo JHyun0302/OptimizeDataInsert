@@ -1,4 +1,4 @@
-package com.example.vm10.config;
+package com.example.vm100.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,4 +38,3 @@ public class RedisSerializeConfig {
         return redisTemplate;
     }
 }
-

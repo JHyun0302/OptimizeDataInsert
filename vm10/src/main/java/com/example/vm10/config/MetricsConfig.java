@@ -1,4 +1,4 @@
-package com.example.vm10.config;
+package com.example.vm100.config;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
@@ -10,7 +10,7 @@ public class MetricsConfig {
     @Bean
     MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
         return registry -> registry.config().commonTags(
-                "service", "vm10",
+                "service", "vm100",
                 "port", "8088"
         );
     }

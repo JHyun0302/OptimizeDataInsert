@@ -15,6 +15,7 @@ import com.example.vm2.entity.common.BaseTimeEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Setter
 public class TbDtfHrasAuto extends BaseTimeEntity {
 
     // 복합키 (CS_ID, PDCT_DT)
