@@ -5,9 +5,9 @@ spring:
     username: SYSTEM
     password: oracle
     hikari:
-      minimum-idle: 10         # 최소 유휴 커넥션 수
-      maximum-pool-size: 100   # 최대 커넥션 풀 크기
-      idle-timeout: 30000     # 커넥션 유휴 타임아웃(밀리초)
+      minimum-idle: 5         # 최소 유휴 커넥션 수
+      maximum-pool-size: 20   # 최대 커넥션 풀 크기
+      idle-timeout: 60000     # 커넥션 유휴 타임아웃(밀리초)
       pool-name: MyHikariPool # 풀 이름
 
   jpa:
@@ -22,9 +22,4 @@ spring:
         order_inserts: true
         order_updates: true
         jdbc:
-          batch_size: 10000     # 약 3.55분에 1200만건 처리
-  #          batch_size: 20000     # 약 1.8분에 1200만건 처리
-
-  application:
-    consumer-name: consumer-1
-    role: producer
+          batch_size: 10000     # 배치 사이즈 지정
