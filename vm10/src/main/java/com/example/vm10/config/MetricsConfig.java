@@ -1,4 +1,4 @@
-package com.example.vm100.config;
+package com.example.vm10.config;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;

@@ -9,7 +9,6 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class RedisInsertService {
+public class RedisCachingService {
 
     private static final String REDIS_KEY = "hras-data";
 
@@ -38,7 +37,7 @@ public class RedisInsertService {
 
     private final Timer timer;
 
-    public RedisInsertService(ObjectMapper objectMapper, StringRedisTemplate redisTemplate, TbDtfHrasAutoRepository repository, MeterRegistry meterRegistry) {
+    public RedisCachingService(ObjectMapper objectMapper, StringRedisTemplate redisTemplate, TbDtfHrasAutoRepository repository, MeterRegistry meterRegistry) {
         this.objectMapper = objectMapper;
         this.redisTemplate = redisTemplate;
         this.repository = repository;
@@ -50,49 +49,48 @@ public class RedisInsertService {
     @Transactional
     @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
     @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
-    public void updateDBAndSaveToRedis(int startId, int endId, int batchSize, int vmIndex) {
+    public void updateWithRedisCaching(int startId, int endId, int vmIndex) {
         timer.record(() -> {
             String redisKey = REDIS_KEY + ":" + vmIndex;
-            List<TbDtfHrasAuto> records = repository.findByRange(startId, endId); // 정수 기반으로 startId와 endId 전달
-            log.info("Fetched records: {}", records.size());
 
-            // 데이터를 배치 단위로 나눔
-            List<List<TbDtfHrasAuto>> batches = splitIntoBatches(records, batchSize);
-
-            for (List<TbDtfHrasAuto> batch : batches) {
-                batch.forEach(record -> {
-                    record.setWtlvVal(generateRandomValue());
-                    record.setFlowVal(generateRandomValue());
-                    record.setVelVal(generateRandomValue());
-                });
-                repository.saveAll(batch);
-                log.info("Updated batch of size: {}", batch.size());
-
-                // Redis에 데이터를 한 번에 저장
-                saveBatchToRedis(batch, redisKey);
+            // Redis에서 해당 키의 전체 데이터를 읽음 (JSON 문자열 목록)
+            List<String> jsonRecords = redisTemplate.opsForList().range(redisKey, 0, -1);
+            if (jsonRecords == null || jsonRecords.isEmpty()) {
+                log.warn("No records found in Redis for key: {}", redisKey);
+                return;
             }
 
-            log.info("Updated records from {} to {}", startId, endId);
-        });
-    }
+            // JSON 문자열을 TbDtfHrasAuto 객체로 변환
+            List<TbDtfHrasAuto> records = new ArrayList<>();
+            for (String json : jsonRecords) {
+                try {
+                    TbDtfHrasAuto record = objectMapper.readValue(json, TbDtfHrasAuto.class);
+                    records.add(record);
+                } catch (Exception e) {
+                    log.error("Failed to deserialize JSON: {}", json, e);
+                }
+            }
 
-    private List<List<TbDtfHrasAuto>> splitIntoBatches(List<TbDtfHrasAuto> records, int batchSize) {
-        List<List<TbDtfHrasAuto>> batches = new ArrayList<>();
-        for (int i = 0; i < records.size(); i += batchSize) {
-            int end = Math.min(i + batchSize, records.size());
-            batches.add(records.subList(i, end));
-        }
-        return batches;
+            Long randomWtlv = (long) (Math.random() * 100 + 1);
+            Long randomFlow = (long) (Math.random() * 100 + 1);
+            Long randomVel = (long) (Math.random() * 100 + 1);
+
+            int updatedRows = repository.bulkUpdateByRange(randomWtlv, randomFlow, randomVel, startId, endId);
+            log.info("Bulk updated {} rows for range {} to {}", updatedRows, startId, endId);
+
+            // Redis에 해당 배치의 업데이트된 데이터를 반영
+            updateBatchInRedis(redisKey, records);
+        });
     }
 
     private Long generateRandomValue() {
         return new Random().nextLong(1000); // 예: 0~999
     }
 
-    private void saveBatchToRedis(List<TbDtfHrasAuto> batch, String redisKey) {
+    private void updateBatchInRedis(String redisKey, List<TbDtfHrasAuto> records) {
         try {
-            // JSON 변환
-            List<String> jsonRecords = batch.stream()
+            // 배치의 각 객체를 JSON 문자열로 변환
+            List<String> updatedJsonRecords = records.stream()
                     .map(record -> {
                         try {
                             return objectMapper.writeValueAsString(record);
@@ -104,20 +102,11 @@ public class RedisInsertService {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            if (jsonRecords.isEmpty()) {
-                log.warn("No valid records to save to Redis for key: {}", redisKey);
-                return;
-            }
-
-            // Redis 파이프라인 사용
-            redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-                jsonRecords.forEach(json -> connection.rPush(redisKey.getBytes(), json.getBytes()));
-                return null;
-            });
-
-            log.info("Saved batch of {} records to Redis key: {}", batch.size(), redisKey);
+            redisTemplate.delete(redisKey);
+            redisTemplate.opsForList().rightPushAll(redisKey, updatedJsonRecords);
+            log.info("Updated {} records in Redis for key: {}", updatedJsonRecords.size(), redisKey);
         } catch (Exception e) {
-            log.error("Failed to save batch to Redis key: {}", redisKey, e);
+            log.error("Failed to update batch in Redis for key: {}", redisKey, e);
         }
     }
 }

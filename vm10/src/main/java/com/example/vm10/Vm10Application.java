@@ -1,13 +1,13 @@
-package com.example.vm100;
+package com.example.vm10;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class vm100Application {
+public class Vm10Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(vm100Application.class, args);
+		SpringApplication.run(Vm10Application.class, args);
 	}
 
 }

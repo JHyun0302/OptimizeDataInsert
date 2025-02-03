@@ -1,8 +1,8 @@
-package com.example.vm100.entity;
+package com.example.vm10.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.example.vm100.entity.common.BaseTimeEntity;
+import com.example.vm10.entity.common.BaseTimeEntity;
 
 /**
  * 복합키 : CS_ID, PDCT_DT

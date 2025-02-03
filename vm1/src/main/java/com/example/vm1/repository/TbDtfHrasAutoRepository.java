@@ -12,15 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface TbDtfHrasAutoRepository   extends JpaRepository<TbDtfHrasAuto, TbDtfHrasAutoPk> {
 
-    @Transactional
     @Modifying
-    @Query("UPDATE TbDtfHrasAuto t SET t.wtlvVal = :wtlvVal, t.flowVal = :flowVal, t.velVal = :velVal WHERE t.pk.csId = :csId AND t.pk.pdctDt = :pdctDt")
-    void updateValues(@Param("wtlvVal") Long wtlvVal,
-                      @Param("flowVal") Long flowVal,
-                      @Param("velVal") Long velVal,
-                      @Param("csId") String csId,
-                      @Param("pdctDt") LocalDateTime pdctDt);
+    @Transactional
+    @Query(
+            value = "UPDATE TB_DTF_HRAS_AUTO " +
+                    "SET wtlv_val = :wtlvVal, " +
+                    "    flow_val = :flowVal, " +
+                    "    vel_val = :velVal " +
+                    "WHERE TO_NUMBER(SUBSTR(cs_id, 4)) BETWEEN :startId AND :endId",
+            nativeQuery = true)
+    int bulkUpdateByRange(@Param("wtlvVal") Long wtlvVal,
+                          @Param("flowVal") Long flowVal,
+                          @Param("velVal") Long velVal,
+                          @Param("startId") int startId,
+                          @Param("endId") int endId);
 
-    @Query("SELECT t FROM TbDtfHrasAuto t WHERE TO_NUMBER(SUBSTR(t.pk.csId, 4)) BETWEEN :startId AND :endId")
-    List<TbDtfHrasAuto> findByRange(@Param("startId") int startId, @Param("endId") int endId);
 }

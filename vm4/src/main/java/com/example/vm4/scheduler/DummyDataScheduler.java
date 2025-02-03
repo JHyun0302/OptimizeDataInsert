@@ -1,7 +1,6 @@
 package com.example.vm4.scheduler;
 
-import com.example.vm4.redis.RedisInsertService;
-import com.example.vm4.redis.SaveInDataBase;
+import com.example.vm4.redis.RedisCachingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,9 +10,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DummyDataScheduler {
 
-    private final RedisInsertService readFromRedisAndInsertToDB;
-
-    private final SaveInDataBase saveInDataBase;
+    private final RedisCachingService readFromRedisAndInsertToDB;
 
     @Value("${spring.application.vm-index}")  // VM의 고유 인덱스 (1~16)
     private int vmIndex;
@@ -35,12 +32,6 @@ public class DummyDataScheduler {
             endId += totalData % totalVms;
         }
 
-        if (vmIndex == 0) {
-            // Redis 데이터를 읽고 DB에 Insert
-            saveInDataBase.readFromRedisAndInsertToDB();
-        } else {
-            // DB 데이터를 읽고 Update 후 Redis에 저장
-            readFromRedisAndInsertToDB.updateDBAndSaveToRedis(startId, endId, batchSize, vmIndex);
-        }
+        readFromRedisAndInsertToDB.updateWithRedisCaching(startId, endId, vmIndex);
     }
 }
