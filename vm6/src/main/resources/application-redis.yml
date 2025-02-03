@@ -3,4 +3,3 @@ spring:
     redis:
       host: ${SPRING_DATA_REDIS_SERIALIZE_HOST:redis}
       port: ${SPRING_DATA_REDIS_SERIALIZE_PORT:6379}
-
