@@ -10,7 +10,7 @@ public class MetricsConfig {
     @Bean
     MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
         return registry -> registry.config().commonTags(
-                "service", "vm100",
+                "service", "vm10",
                 "port", "8088"
         );
     }

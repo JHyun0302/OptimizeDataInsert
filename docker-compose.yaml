@@ -12,8 +12,6 @@ services:
       - ORACLE_DISABLE_ASYNCH_IO=true
       - ORACLE_SID=ORCL  # SID를 ORCL로 설정
     volumes:
-#      - ./db/listener.ora:/opt/oracle/product/19.3.0/dbhome_1/network/admin/listener.ora
-#      - ./db/init_listener.sql:/docker-entrypoint-initdb.d/init_listener.sql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./db/init_data.sql:/docker-entrypoint-initdb.d/init_data.sql
 

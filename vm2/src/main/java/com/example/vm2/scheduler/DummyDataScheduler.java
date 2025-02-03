@@ -1,6 +1,6 @@
 package com.example.vm2.scheduler;
 
-import com.example.vm2.redis.RedisCachingService;
+import com.example.vm2.service.UpdateQueryWithNoRedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,16 +10,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DummyDataScheduler {
 
-    private final RedisCachingService readFromRedisAndInsertToDB;
+    private final UpdateQueryWithNoRedisService dataUpdateService;
 
     @Value("${spring.application.vm-index}")  // VM의 고유 인덱스 (1~16)
     private int vmIndex;
 
     @Value("${spring.application.total-vms}") // 총 VM 개수
     private int totalVms;
-
-    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
-    private int batchSize;
 
     @Scheduled(fixedRate = 10000) // 10초마다 실행
     public void scheduleInsertDummyData() {
@@ -32,6 +29,6 @@ public class DummyDataScheduler {
             endId += totalData % totalVms;
         }
 
-        readFromRedisAndInsertToDB.updateWithRedisCaching(startId, endId, vmIndex);
+        dataUpdateService.updateQueryWithNoRedis(startId, endId);
     }
 }

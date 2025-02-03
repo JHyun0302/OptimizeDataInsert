@@ -24,5 +24,4 @@ public interface TbDtfHrasAutoRepository   extends JpaRepository<TbDtfHrasAuto, 
                           @Param("velVal") Long velVal,
                           @Param("startId") int startId,
                           @Param("endId") int endId);
-
 }
