@@ -1,7 +1,7 @@
-package com.example.vm1.redis;
+package com.example.vm10.redis;
 
-import com.example.vm1.entity.TbDtfHrasAuto;
-import com.example.vm1.repository.TbDtfHrasAutoRepository;
+import com.example.vm10.entity.TbDtfHrasAuto;
+import com.example.vm10.repository.TbDtfHrasAutoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
