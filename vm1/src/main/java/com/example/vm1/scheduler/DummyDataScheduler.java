@@ -1,37 +1,70 @@
 package com.example.vm1.scheduler;
 
-import com.example.vm1.redis.RedisCachingService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.vm1.repository.TbDtfHrasAutoRepository;
+import com.example.vm1.thread.ConsumerTask;
+import com.example.vm1.thread.ProducerTask;
+import com.example.vm1.thread.UpdateTask;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
+@Slf4j
 @Component
-@RequiredArgsConstructor
 public class DummyDataScheduler {
 
-    private final RedisCachingService readFromRedisAndInsertToDB;
+    private final BlockingQueue<UpdateTask>[] queue  = new BlockingQueue[10];
 
-    @Value("${spring.application.vm-index}")  // VM의 고유 인덱스 (1~16)
-    private int vmIndex;
+    private final TbDtfHrasAutoRepository repository;
 
-    @Value("${spring.application.total-vms}") // 총 VM 개수
-    private int totalVms;
+    private final List<Thread> consumerThreads = new ArrayList<>();
 
-    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
-    private int batchSize;
+    private final ObjectMapper objectMapper;
 
-    @Scheduled(fixedRate = 10000) // 10초마다 실행
-    public void scheduleInsertDummyData() {
-        int totalData = 12000000; // 총 데이터 건수
-        int dataPerVm = totalData / totalVms;
+    private final RedisTemplate<String, String> redisTemplate;
 
-        int startId = (vmIndex * dataPerVm) + 1;
-        int endId = (vmIndex + 1) * dataPerVm;
-        if (vmIndex == totalVms - 1) { // 마지막 VM 처리
-            endId += totalData % totalVms;
+    private final MeterRegistry meterRegistry;
+
+    public static int THREAD_POOL = 10;
+
+    // Producer & Consumer 스레드 풀 생성 (10개 스레드 유지)
+    private final ExecutorService producerThreadPool = Executors.newFixedThreadPool(THREAD_POOL);
+    private final ExecutorService consumerThreadPool = Executors.newFixedThreadPool(THREAD_POOL);
+
+    public DummyDataScheduler(TbDtfHrasAutoRepository repository, ObjectMapper objectMapper, RedisTemplate<String, String> redisTemplate, MeterRegistry meterRegistry) {
+        this.repository = repository;
+        this.objectMapper = objectMapper;
+        this.redisTemplate = redisTemplate;
+        this.meterRegistry = meterRegistry;
+        initializeQueues();
+        startConsumers();
+    }
+
+    private void initializeQueues() {
+        for (int i = 0; i < THREAD_POOL; i++) {
+            queue[i] = new LinkedBlockingQueue<>();
         }
+    }
+    @Scheduled(fixedRate = 10000)
+    public void scheduleInsertDummyData() {
+        log.info("🔥 scheduleInsertDummyData() 실행됨 - Producer 생성 시작");
 
-        readFromRedisAndInsertToDB.updateWithRedisCaching(startId, endId, vmIndex);
+        for (int i = 0; i < THREAD_POOL; i++) {
+            final int threadIndex = i;
+            producerThreadPool.submit(() -> new ProducerTask(threadIndex, queue[threadIndex], repository, redisTemplate, objectMapper, meterRegistry).run());
+        }
+    }
+
+    private void startConsumers() {
+        for (int i = 0; i < THREAD_POOL; i++) {
+            final int threadIndex = i;
+            consumerThreadPool.submit(() -> new ConsumerTask(queue[threadIndex], objectMapper, redisTemplate).run());
+        }
     }
 }
