@@ -27,17 +27,21 @@ public class RedisInsertService {
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
+    @Value("${spring.application.vm-index}")
+    private int vmIndex;
+
     public void saveHrasDataInRedis() {
-        String uniqueKey = REDIS_KEY_PREFIX + ":" + System.currentTimeMillis();
+        String uniqueKey = "[VM-"+ vmIndex + "] " + REDIS_KEY_PREFIX + ":" + System.currentTimeMillis();
+        TbDtfHrasAuto record = generateDummyRecord(10);
         try {
             for (int i = 0; i < batchSize; i++) {
-                TbDtfHrasAuto record = generateDummyRecord(i);
                 String jsonData = objectMapper.writeValueAsString(record);  // 엔티티를 JSON으로 직렬화
                 redisTemplate.opsForList().rightPush(uniqueKey, jsonData); // Redis 리스트에 추가
             }
         } catch (Exception e) {
             log.error("Failed to serialize HRAS data: ", e);
         }
+        log.info("Inserted {} records in Redis for key: {}", batchSize, uniqueKey);
     }
 
     private TbDtfHrasAuto generateDummyRecord(int index) {

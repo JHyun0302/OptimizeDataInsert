@@ -17,6 +17,6 @@ public class DummyDataScheduler {
     @Scheduled(fixedRate = 10000) // 10초마다 실행
     public void scheduleInsertDummyData() {
         redisInsertService.saveHrasDataInRedis();
-        saveInDataBase.transferHrasDataToDB();
+        //saveInDataBase.transferHrasDataToDB();
     }
 }
