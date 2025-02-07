@@ -5,6 +5,12 @@ import com.example.vm3.entity.TbDtfHrasAutoPk;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.Random;
+
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class RedisInsertService {
 
     private static final String REDIS_KEY_PREFIX = "hras-data";
@@ -30,17 +35,37 @@ public class RedisInsertService {
     @Value("${spring.application.vm-index}")
     private int vmIndex;
 
+    private final Counter successCounter;
+
+    private final Counter failureCounter;
+
+    private final Timer timer;
+
+    public RedisInsertService(StringRedisTemplate redisTemplate, ObjectMapper objectMapper, MeterRegistry meterRegistry) {
+        this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
+        this.successCounter = meterRegistry.counter("dummy_data.insert.success");
+        this.failureCounter = meterRegistry.counter("dummy_data.insert.failure");
+        this.timer = meterRegistry.timer("dummy_data.insert.timer");
+    }
+
+    @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
+    @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
     public void saveHrasDataInRedis() {
         String uniqueKey = "[VM-"+ vmIndex + "] " + REDIS_KEY_PREFIX + ":" + System.currentTimeMillis();
-        TbDtfHrasAuto record = generateDummyRecord(3);
-        try {
-            for (int i = 0; i < batchSize; i++) {
-                String jsonData = objectMapper.writeValueAsString(record);  // 엔티티를 JSON으로 직렬화
-                redisTemplate.opsForList().rightPush(uniqueKey, jsonData); // Redis 리스트에 추가
+        timer.record(() -> {
+            try {
+                for (int i = 0; i < batchSize; i++) {
+                    TbDtfHrasAuto record = generateDummyRecord(i);
+                    String jsonData = objectMapper.writeValueAsString(record);  // 엔티티를 JSON으로 직렬화
+                    redisTemplate.opsForList().rightPush(uniqueKey, jsonData); // Redis 리스트에 추가
+                }
+                successCounter.increment();
+            } catch (Exception e) {
+                failureCounter.increment();
+                log.error("Failed to serialize HRAS data: ", e);
             }
-        } catch (Exception e) {
-            log.error("Failed to serialize HRAS data: ", e);
-        }
+        });
         log.info("Inserted {} records in Redis for key: {}", batchSize, uniqueKey);
     }
 

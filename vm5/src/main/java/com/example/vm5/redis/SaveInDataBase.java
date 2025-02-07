@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,8 @@ public class SaveInDataBase {
 
     private final Timer timer;
 
+    @Value("${spring.application.vm-index}")
+    private int vmIndex;
     public SaveInDataBase(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, TbDtfHrasAutoRepository repository, MeterRegistry meterRegistry) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
@@ -48,11 +51,16 @@ public class SaveInDataBase {
     @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
     @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
     public void transferHrasDataToDB() {
+        String currentVMKeyPrefix = "*VM-" + vmIndex + "*hras-data:*";
+
+        // Redis에서 현재 VM에 해당하는 키만 가져오기
+        Set<String> keys = redisTemplate.keys(currentVMKeyPrefix);
+
+        // Redis에서 모든 데이터 가져오기
+//        Set<String> keys = redisTemplate.keys("*hras-data:*");
+
         timer.record(() -> {
             try {
-                // Redis에서 모든 데이터 가져오기
-                Set<String> keys = redisTemplate.keys(REDIS_KEY_PREFIX + ":*");
-
                 if (keys != null && !keys.isEmpty()) {
                     for (String key : keys) {
                         List<String> jsonDataList = redisTemplate.opsForList().range(key, 0, -1); // Redis 리스트에서 데이터 가져오기

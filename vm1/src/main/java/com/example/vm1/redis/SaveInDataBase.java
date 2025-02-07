@@ -9,17 +9,19 @@ import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
-@Transactional(readOnly = true)
 public class SaveInDataBase {
 
     private final RedisTemplate<String, String> redisTemplate;
@@ -36,6 +38,9 @@ public class SaveInDataBase {
 
     private final Timer timer;
 
+    @Value("${spring.application.vm-index}")
+    private int vmIndex;
+
     public SaveInDataBase(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, TbDtfHrasAutoRepository repository, MeterRegistry meterRegistry) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
@@ -48,11 +53,17 @@ public class SaveInDataBase {
     @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
     @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
     public void transferHrasDataToDB() {
+        String currentVMKeyPrefix = "*VM-" + vmIndex + "*hras-data:*";
+
+        // Redis에서 현재 VM에 해당하는 키만 가져오기
+        Set<String> keys = redisTemplate.keys(currentVMKeyPrefix);
+        log.info("currentVMKeyPrefix, keys.size() = {}, {}",currentVMKeyPrefix, keys.size());
+
+        // Redis에서 모든 데이터 가져오기
+//        Set<String> keys = redisTemplate.keys("*hras-data:*");
+
         timer.record(() -> {
             try {
-                // Redis에서 모든 데이터 가져오기
-                Set<String> keys = redisTemplate.keys(REDIS_KEY_PREFIX + ":*");
-
                 if (keys != null && !keys.isEmpty()) {
                     for (String key : keys) {
                         List<String> jsonDataList = redisTemplate.opsForList().range(key, 0, -1); // Redis 리스트에서 데이터 가져오기
@@ -63,7 +74,7 @@ public class SaveInDataBase {
                             // JSON 데이터를 역직렬화하여 엔티티 리스트로 변환
                             jsonToEntity(jsonDataList, hrasDataList);
                             saveToDatabase(hrasDataList); // DB에 저장
-                            redisTemplate.delete(key); // Redis에서 해당 키 삭제
+//                            redisTemplate.delete(key); // Redis에서 해당 키 삭제
                         }
                     }
                     successCounter.increment();
@@ -86,8 +97,8 @@ public class SaveInDataBase {
         }
     }
 
-
-    private void saveToDatabase(List<TbDtfHrasAuto> hrasDataList) {
+    @Transactional
+    public void saveToDatabase(List<TbDtfHrasAuto> hrasDataList) {
         if (hrasDataList.isEmpty()) {
             log.info("No HRAS data to save.");
             return;
