@@ -35,7 +35,7 @@ public class RedisInsertService {
 
     private static final Random RANDOM = new Random();
 
-    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    @Value("${spring.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
     @Value("${spring.application.vm-index}")

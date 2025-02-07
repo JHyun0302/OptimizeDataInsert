@@ -3,19 +3,18 @@ package com.example.vm2.redis;
 import com.example.vm2.entity.TbDtfHrasAuto;
 import com.example.vm2.entity.TbDtfHrasAutoPk;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDateTime;
-import java.util.Random;
-
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Random;
 
 @Slf4j
 @Service
@@ -29,7 +28,7 @@ public class RedisInsertService {
 
     private static final Random RANDOM = new Random();
 
-    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    @Value("${spring.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
     @Value("${spring.application.vm-index}")
