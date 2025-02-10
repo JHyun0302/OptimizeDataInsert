@@ -30,7 +30,7 @@ public class GetDataFromRedis {
 
         // Redis에서 현재 VM에 해당하는 키만 가져오기
         Set<String> keys = redisTemplate.keys(currentVMKeyPrefix);
-        log.info("currentVMKeyPrefix, keys.size() = {}, {}", currentVMKeyPrefix, keys.size());
+//        log.info("currentVMKeyPrefix, keys.size() = {}, {}", currentVMKeyPrefix, keys.size());
 
         if (keys == null || keys.isEmpty()) {
             return Collections.emptyList();
@@ -50,7 +50,7 @@ public class GetDataFromRedis {
         }
     }
 
-    public List<TbDtfHrasAuto> getData(int groupIndex, int keyGroups) {
+    public List<TbDtfHrasAuto> getData(int groupSize, int keySize) {
         String keyPattern = "*VM-*hras-data:*";
         Set<String> keys = redisTemplate.keys(keyPattern);
 
@@ -63,11 +63,11 @@ public class GetDataFromRedis {
         Collections.sort(sortedKeys);
 
         // 그룹별로 30개씩 가져오기
-        int startIdx = groupIndex * keyGroups;
-        int endIdx = Math.min(startIdx + keyGroups, sortedKeys.size());
+        int startIdx = groupSize * keySize;
+        int endIdx = Math.min(startIdx + keySize, sortedKeys.size());
 
         List<String> groupKeys = sortedKeys.subList(startIdx, endIdx);
-        log.info("Group-{}, Selected Keys: {}", groupIndex, groupKeys.size());
+//        log.info("Group-{}, Selected Keys: {}", groupIndex, groupKeys.size());
 
         return groupKeys.stream()
                 .map(key -> redisTemplate.opsForList().range(key, 0, -1))

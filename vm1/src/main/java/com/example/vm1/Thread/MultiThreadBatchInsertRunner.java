@@ -17,7 +17,7 @@ public class MultiThreadBatchInsertRunner {
 
     private final MultiThreadBatchInsertService multiThreadBatchInsertService;
 
-    private static final int THREAD_COUNT = 4;
+    private static final int THREAD_COUNT = 8;
 
     @Value("${spring.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
@@ -30,7 +30,7 @@ public class MultiThreadBatchInsertRunner {
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-        log.info("Starting parallel batch insert for {} records", dataList.size());
+//        log.info("Starting parallel batch insert for {} records", dataList.size());
 
         for (int i = 0; i < dataList.size(); i += batchSize) {
             int end = Math.min(i + batchSize, dataList.size());
@@ -45,7 +45,5 @@ public class MultiThreadBatchInsertRunner {
         } catch (InterruptedException e) {
             log.error("Batch insert interrupted", e);
         }
-
-        log.info("Parallel batch insert completed!");
     }
 }

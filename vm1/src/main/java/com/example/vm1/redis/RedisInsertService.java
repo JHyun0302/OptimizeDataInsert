@@ -45,21 +45,17 @@ public class RedisInsertService {
 
     private final Counter failureCounter;
 
-    private final Timer timer;
-
     public RedisInsertService(StringRedisTemplate redisTemplate, ObjectMapper objectMapper, MeterRegistry meterRegistry) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
         this.successCounter = meterRegistry.counter("dummy_data.insert.success");
         this.failureCounter = meterRegistry.counter("dummy_data.insert.failure");
-        this.timer = meterRegistry.timer("dummy_data.insert.timer");
+
     }
 
-    @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
-    @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
+
     public void saveHrasDataInRedis() {
         String uniqueKey = "[VM-"+ vmIndex + "] " + REDIS_KEY_PREFIX + ":" + System.currentTimeMillis();
-        timer.record(() -> {
             try {
                 for (int i = 0; i < batchSize; i++) {
                     TbDtfHrasAuto record = generateDummyRecord(i);
@@ -71,7 +67,6 @@ public class RedisInsertService {
                 failureCounter.increment();
                 log.error("Failed to serialize HRAS data: ", e);
             }
-        });
         log.info("Inserted {} records in Redis for key: {}", batchSize, uniqueKey);
     }
 
