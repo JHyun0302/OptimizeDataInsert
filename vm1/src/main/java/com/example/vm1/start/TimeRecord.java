@@ -1,5 +1,6 @@
 package com.example.vm1.start;
 
+import com.example.vm1.Thread.BatchInsertRunner;
 import com.example.vm1.Thread.MultiThreadBatchInsertRunner;
 import com.example.vm1.entity.TbDtfHrasAuto;
 import com.example.vm1.redis.GetDataFromRedis;
@@ -9,6 +10,7 @@ import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -25,14 +27,14 @@ public class TimeRecord {
 
     private final RedisInsertService redisInsertService;
 
-    private final MultiThreadBatchInsertRunner multiThreadBatchInsertRunner;
+    private final BatchInsertRunner batchInsertRunner;
 
     private final Timer timer;
 
-    public TimeRecord(GetDataFromRedis getDataFromRedis, RedisInsertService redisInsertService, MultiThreadBatchInsertRunner multiThreadBatchInsertRunner, MeterRegistry meterRegistry) {
+    public TimeRecord(GetDataFromRedis getDataFromRedis, RedisInsertService redisInsertService, @Qualifier("multiThreadBatchInsertRunner") BatchInsertRunner batchInsertRunner, MeterRegistry meterRegistry) {
         this.getDataFromRedis = getDataFromRedis;
         this.redisInsertService = redisInsertService;
-        this.multiThreadBatchInsertRunner = multiThreadBatchInsertRunner;
+        this.batchInsertRunner = batchInsertRunner;
         this.timer = meterRegistry.timer("dummy_data.insert.timer");
     }
 
@@ -56,7 +58,7 @@ public class TimeRecord {
             for (int vmIndex = 0; vmIndex < 10; vmIndex++) {
                 List<TbDtfHrasAuto> dataList = getDataFromRedis.getData(vmIndex);
 //                List<TbDtfHrasAuto> dataList = getDataFromRedis.getData(vmIndex, 30);
-                multiThreadBatchInsertRunner.runBatchInsert(dataList);
+                batchInsertRunner.runBatchInsert(dataList);
             }
         });
         long endTime = System.currentTimeMillis();

@@ -1,23 +1,20 @@
 package com.example.vm1.Thread;
 
 import com.example.vm1.entity.TbDtfHrasAuto;
+import com.example.vm1.service.BatchInsertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
+public class SingleThreadBatchInsertRunner implements BatchInsertRunner {
 
-    private final MultiThreadBatchInsertService multiThreadBatchInsertService;
-
-    private static final int THREAD_COUNT = 8;
+    private final BatchInsertService batchInsertService;
 
     @Value("${spring.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
@@ -28,22 +25,16 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
             return;
         }
 
-        ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
-
-//        log.info("Starting parallel batch insert for {} records", dataList.size());
+        log.info("Starting batch insert for {} records", dataList.size());
 
         for (int i = 0; i < dataList.size(); i += batchSize) {
             int end = Math.min(i + batchSize, dataList.size());
             List<TbDtfHrasAuto> batch = dataList.subList(i, end);
 
-            executor.submit(() -> multiThreadBatchInsertService.processBatch(batch, batchSize));
+            batchInsertService.batchInsert(batch, batchSize);
         }
 
-        executor.shutdown();
-        try {
-            executor.awaitTermination(1, TimeUnit.HOURS);
-        } catch (InterruptedException e) {
-            log.error("Batch insert interrupted", e);
-        }
+        log.info("Batch insert completed!");
     }
 }
+

@@ -50,7 +50,7 @@ public class GetDataFromRedis {
         }
     }
 
-    public List<TbDtfHrasAuto> getData(int groupSize, int keySize) {
+    public List<TbDtfHrasAuto> getData(int groupIndex, int keySize) {
         String keyPattern = "*VM-*hras-data:*";
         Set<String> keys = redisTemplate.keys(keyPattern);
 
@@ -63,7 +63,7 @@ public class GetDataFromRedis {
         Collections.sort(sortedKeys);
 
         // 그룹별로 30개씩 가져오기
-        int startIdx = groupSize * keySize;
+        int startIdx = groupIndex * keySize;
         int endIdx = Math.min(startIdx + keySize, sortedKeys.size());
 
         List<String> groupKeys = sortedKeys.subList(startIdx, endIdx);
