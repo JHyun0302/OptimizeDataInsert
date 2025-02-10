@@ -1,23 +1,15 @@
 package com.example.vm1.start;
 
 import com.example.vm1.Thread.BatchInsertRunner;
-import com.example.vm1.Thread.MultiThreadBatchInsertRunner;
-import com.example.vm1.entity.TbDtfHrasAuto;
 import com.example.vm1.redis.GetDataFromRedis;
 import com.example.vm1.redis.RedisInsertService;
-import io.micrometer.core.annotation.Counted;
-import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -29,40 +21,23 @@ public class TimeRecord {
 
     private final BatchInsertRunner batchInsertRunner;
 
-    private final Timer timer;
-
-    public TimeRecord(GetDataFromRedis getDataFromRedis, RedisInsertService redisInsertService, @Qualifier("multiThreadBatchInsertRunner") BatchInsertRunner batchInsertRunner, MeterRegistry meterRegistry) {
+    public TimeRecord(GetDataFromRedis getDataFromRedis, RedisInsertService redisInsertService, @Qualifier("singleThreadBatchInsertRunner") BatchInsertRunner batchInsertRunner, MeterRegistry meterRegistry) {
         this.getDataFromRedis = getDataFromRedis;
         this.redisInsertService = redisInsertService;
         this.batchInsertRunner = batchInsertRunner;
-        this.timer = meterRegistry.timer("dummy_data.insert.timer");
     }
 
-    @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
-    @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
+
     public void insertDummyDataInRedis() {
         long startTime = System.currentTimeMillis();
-        for (int i = 0; i < 60; i++) {
-            redisInsertService.saveHrasDataInRedis();
+        int batchIndex = 0;
+
+        for (int i = 0; i < 6; i++) { // VM별 6개의 Redis 키 생성
+            redisInsertService.saveHrasDataInRedis(batchIndex);
+            batchIndex++; // 배치 인덱스 증가
         }
+
         long endTime = System.currentTimeMillis();
-
-        timeTrace(startTime, endTime);
-    }
-
-    @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
-    @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
-    public void insertDummyDataInDataBase() {
-        long startTime = System.currentTimeMillis();
-        timer.record(() -> {
-            for (int vmIndex = 0; vmIndex < 10; vmIndex++) {
-                List<TbDtfHrasAuto> dataList = getDataFromRedis.getData(vmIndex);
-//                List<TbDtfHrasAuto> dataList = getDataFromRedis.getData(vmIndex, 30);
-                batchInsertRunner.runBatchInsert(dataList);
-            }
-        });
-        long endTime = System.currentTimeMillis();
-
         timeTrace(startTime, endTime);
     }
 

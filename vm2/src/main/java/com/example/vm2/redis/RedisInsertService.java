@@ -50,14 +50,20 @@ public class RedisInsertService {
 
     @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
     @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
-    public void saveHrasDataInRedis() {
-        String uniqueKey = "[VM-"+ vmIndex + "] " + REDIS_KEY_PREFIX + ":" + System.currentTimeMillis();
+    public void saveHrasDataInRedis(int batchIndex) {
+        // VM별 CS_ID 시작점을 설정 (5만 개씩 증가)
+        int baseIndex = ((vmIndex * 6) + batchIndex) * batchSize;
+
+        // Redis 키는 VM별로 다르게 생성
+        String uniqueKey = "[VM-" + vmIndex + "] " + REDIS_KEY_PREFIX + ":" + System.currentTimeMillis();
+
         timer.record(() -> {
             try {
                 for (int i = 0; i < batchSize; i++) {
-                    TbDtfHrasAuto record = generateDummyRecord(i);
-                    String jsonData = objectMapper.writeValueAsString(record);  // 엔티티를 JSON으로 직렬화
-                    redisTemplate.opsForList().rightPush(uniqueKey, jsonData); // Redis 리스트에 추가
+                    int csIdNumber = baseIndex + i + 1; // CS_ID 1부터 증가
+                    TbDtfHrasAuto record = generateDummyRecord(csIdNumber);
+                    String jsonData = objectMapper.writeValueAsString(record);
+                    redisTemplate.opsForList().rightPush(uniqueKey, jsonData);
                 }
                 successCounter.increment();
             } catch (Exception e) {
@@ -65,13 +71,13 @@ public class RedisInsertService {
                 log.error("Failed to serialize HRAS data: ", e);
             }
         });
-        log.info("Inserted {} records in Redis for key: {}", batchSize, uniqueKey);
+        //log.info("Inserted {} records in Redis for key: {}", batchSize, uniqueKey);
     }
 
-    private TbDtfHrasAuto generateDummyRecord(int index) {
-        String csId = "CS_" + (1000000 + index); // CS_ID 형식: 1000000부터 시작
+    private TbDtfHrasAuto generateDummyRecord(int csIdNumber) {
+        String csId = "CS_" + csIdNumber; // CS_ID 형식: 1부터 시작하여 1씩 증가
         long projectId = 1000000 + RANDOM.nextInt(100000); // PROJECT_ID: 랜덤
-        String name = "Project-" + index; // NAME
+        String name = "Project-" + csIdNumber; // NAME
         String riverName = "River-" + (RANDOM.nextInt(5) + 1); // RIVER_NAME: River-1 ~ River-5
         String riverReach = "Reach-" + (RANDOM.nextInt(10) + 1); // RIVER_REACH: Reach-1 ~ Reach-10
         long riverCode = 1000 + RANDOM.nextInt(100); // RIVER_CODE

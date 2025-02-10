@@ -1,5 +1,6 @@
 package com.example.vm2.entity;
 
+import com.example.vm2.entity.TbDtfHrasAutoPk;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -15,11 +15,12 @@ import java.util.List;
 public class MultiThreadBatchInsertService {
 
     private final BatchInsertService batchInsertService;
-//    private final TbDtfHrasAutoRepository repository;
+
+    private final TbDtfHrasAutoRepository repository;
 
     @Async("taskExecutor")  // 비동기 실행 (Thread Pool 사용)
     public void processBatch(List<TbDtfHrasAuto> batch, int batchSize) {
-//        repository.batchInsert(batch);
-        batchInsertService.batchInsert(batch, batchSize);
+        repository.batchInsert(batch, batchSize);
+//        batchInsertService.batchInsert(batch, batchSize);
     }
 }

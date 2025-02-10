@@ -11,7 +11,7 @@ public class MetricsConfig {
     MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
         return registry -> registry.config().commonTags(
                 "service", "vm5",
-                "port", "8085"
+                "port", "8081"
         );
     }
 }

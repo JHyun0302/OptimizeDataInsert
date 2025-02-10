@@ -15,7 +15,7 @@ spring:
   properties:
     hibernate:
       jdbc:
-        batch_size: 20000
+        batch_size: 200000
 
 #  jpa:
 #    hibernate:

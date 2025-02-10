@@ -1,23 +1,22 @@
 package com.example.vm8.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TbDtfHrasAutoPk implements Serializable {
 
-    @Column(name = "CS_ID", nullable = false, length = 100)
     private String csId;
 
-    @Column(name = "PDCT_DT", nullable = false)
     private LocalDateTime pdctDt;
 
     @Override

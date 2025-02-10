@@ -1,6 +1,7 @@
 package com.example.vm2.Thread;
 
 import com.example.vm2.entity.TbDtfHrasAuto;
+import com.example.vm2.repository.TbDtfHrasAutoRepository;
 import com.example.vm2.service.BatchInsertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +17,11 @@ public class MultiThreadBatchInsertService {
 
     private final BatchInsertService batchInsertService;
 
+    private final TbDtfHrasAutoRepository repository;
+
     @Async("taskExecutor")  // 비동기 실행 (Thread Pool 사용)
     public void processBatch(List<TbDtfHrasAuto> batch, int batchSize) {
-        log.info("Thread: {} processing {} records", Thread.currentThread().getName(), batch.size());
-        batchInsertService.batchInsert(batch, batchSize);
+        repository.batchInsert(batch, batchSize);
+//        batchInsertService.batchInsert(batch, batchSize);
     }
 }

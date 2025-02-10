@@ -18,7 +18,7 @@ public class BatchInsertService {
     private final JdbcTemplate jdbcTemplate;
 
     public void batchInsert(List<TbDtfHrasAuto> dataList, int batchSize) {
-        String sql = "INSERT INTO TB_DTF_HRAS_AUTO (CS_ID, PDCT_DT, PROJECT_ID, NAME, RIVER_NAME, RIVER_REACH, RIVER_CODE, WTLV_VAL, FLOW_VAL, VEL_VAL) " +
+        String sql = "INSERT /*+ APPEND */ INTO TB_DTF_HRAS_AUTO (CS_ID, PDCT_DT, PROJECT_ID, NAME, RIVER_NAME, RIVER_REACH, RIVER_CODE, WTLV_VAL, FLOW_VAL, VEL_VAL) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, dataList, batchSize, (PreparedStatement ps, TbDtfHrasAuto data) -> {

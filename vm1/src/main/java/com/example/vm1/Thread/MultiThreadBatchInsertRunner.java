@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+
+import java.util.*;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
@@ -17,7 +16,7 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
 
     private final MultiThreadBatchInsertService multiThreadBatchInsertService;
 
-    private static final int THREAD_COUNT =  Runtime.getRuntime().availableProcessors() * 2;
+    private static final int THREAD_COUNT =  Runtime.getRuntime().availableProcessors();
 
     @Value("${spring.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
@@ -28,13 +27,20 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
             return;
         }
 
+        int totalSize = dataList.size();
+        int chunkSize = totalSize / THREAD_COUNT; // ✅ 각 스레드에 할당할 데이터 개수
+        int remaining = totalSize % THREAD_COUNT; // ✅ 나누어 떨어지지 않는 경우 추가 처리
+
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-        log.info("Starting parallel batch insert for {} records, thread_count= {}", dataList.size(), THREAD_COUNT);
+        log.info("Starting parallel batch insert for {} records, thread_count={}", totalSize, THREAD_COUNT);
 
-        for (int i = 0; i < dataList.size(); i += batchSize) {
-            int end = Math.min(i + batchSize, dataList.size());
-            List<TbDtfHrasAuto> batch = dataList.subList(i, end);
+        int startIdx = 0;
+
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            int endIdx = startIdx + chunkSize + (i < remaining ? 1 : 0); // ✅ 데이터가 균등하게 분배되도록 설정
+            List<TbDtfHrasAuto> batch = dataList.subList(startIdx, endIdx);
+            startIdx = endIdx;
 
             executor.submit(() -> multiThreadBatchInsertService.processBatch(batch, batchSize));
         }

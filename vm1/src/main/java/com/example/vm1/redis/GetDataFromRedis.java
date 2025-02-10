@@ -30,6 +30,7 @@ public class GetDataFromRedis {
 
         // Redis에서 현재 VM에 해당하는 키만 가져오기
         Set<String> keys = redisTemplate.keys(currentVMKeyPrefix);
+        log.info("keys.size(): {}", keys.size());
 //        log.info("currentVMKeyPrefix, keys.size() = {}, {}", currentVMKeyPrefix, keys.size());
 
         if (keys == null || keys.isEmpty()) {

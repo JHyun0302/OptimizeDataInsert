@@ -1,6 +1,7 @@
 package com.example.vm1.Thread;
 
 import com.example.vm1.entity.TbDtfHrasAuto;
+import com.example.vm1.repository.TbDtfHrasAutoRepository;
 import com.example.vm1.service.BatchInsertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,8 @@ import java.util.List;
 public class SingleThreadBatchInsertRunner implements BatchInsertRunner {
 
     private final BatchInsertService batchInsertService;
+
+    private final TbDtfHrasAutoRepository repository;
 
     @Value("${spring.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
@@ -31,7 +34,12 @@ public class SingleThreadBatchInsertRunner implements BatchInsertRunner {
             int end = Math.min(i + batchSize, dataList.size());
             List<TbDtfHrasAuto> batch = dataList.subList(i, end);
 
-            batchInsertService.batchInsert(batch, batchSize);
+//            batchInsertService.batchInsert(batch, batchSize);
+            try {
+                repository.batchInsert(batch, batchSize);
+            } catch (Exception e) {
+                log.error("Error in processBatch: {}", e.getMessage(), e);
+            }
         }
 
         log.info("Batch insert completed!");
