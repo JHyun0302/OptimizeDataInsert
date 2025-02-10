@@ -53,9 +53,9 @@ public class TimeRecord {
     public void insertDummyDataInDataBase() {
         long startTime = System.currentTimeMillis();
         timer.record(() -> {
-            for (int vmIndex = 0; vmIndex < 20; vmIndex++) {
-//                List<TbDtfHrasAuto> dataList = getDataFromRedis.getData(vmIndex);
-                List<TbDtfHrasAuto> dataList = getDataFromRedis.getData(vmIndex, 30);
+            for (int vmIndex = 0; vmIndex < 10; vmIndex++) {
+                List<TbDtfHrasAuto> dataList = getDataFromRedis.getData(vmIndex);
+//                List<TbDtfHrasAuto> dataList = getDataFromRedis.getData(vmIndex, 30);
                 multiThreadBatchInsertRunner.runBatchInsert(dataList);
             }
         });
