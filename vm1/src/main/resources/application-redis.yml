@@ -3,3 +3,8 @@ spring:
     redis:
       host: ${SPRING_DATA_REDIS_SERIALIZE_HOST:redis}
       port: ${SPRING_DATA_REDIS_SERIALIZE_PORT:6379}
+
+  redis:
+    second:
+      host: ${SPRING_REDIS_SECOND_HOST:redis}
+      port: ${SPRING_REDIS_SECOND_PORT:6379}

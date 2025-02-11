@@ -1,14 +1,15 @@
-package com.example.vm1.service;
+package com.example.vm1.Thread;
 
 import com.example.vm1.entity.TbDtfHrasAuto;
+import com.example.vm1.repository.TbDtfHrasAutoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -17,8 +18,17 @@ public class BatchInsertService {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final TbDtfHrasAutoRepository repository;
+
+    @Async("taskExecutor")  // 비동기 실행 (Thread Pool 사용)
+    public void processBatch(List<TbDtfHrasAuto> batch, int batchSize) {
+//        repository.batchInsert(batch, batchSize);
+        batchInsert(batch, batchSize);
+    }
+
     public void batchInsert(List<TbDtfHrasAuto> dataList, int batchSize) {
-        String sql = "INSERT /*+ APPEND */ INTO TB_DTF_HRAS_AUTO (CS_ID, PDCT_DT, PROJECT_ID, NAME, RIVER_NAME, RIVER_REACH, RIVER_CODE, WTLV_VAL, FLOW_VAL, VEL_VAL) " +
+        String sql = "INSERT /*+ APPEND */ INTO TB_DTF_HRAS_AUTO " +
+                "(CS_ID, PDCT_DT, PROJECT_ID, NAME, RIVER_NAME, RIVER_REACH, RIVER_CODE, WTLV_VAL, FLOW_VAL, VEL_VAL) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, dataList, batchSize, (PreparedStatement ps, TbDtfHrasAuto data) -> {
@@ -34,5 +44,6 @@ public class BatchInsertService {
             ps.setLong(10, data.getVelVal());
         });
 
+//        log.info("Inserted {} records into DB", dataList.size());
     }
 }

@@ -2,7 +2,6 @@ package com.example.vm1.Thread;
 
 import com.example.vm1.entity.TbDtfHrasAuto;
 import com.example.vm1.repository.TbDtfHrasAutoRepository;
-import com.example.vm1.service.BatchInsertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

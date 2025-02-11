@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * ForAll 방법
+ */
 @Slf4j
 @Repository
 public class TbDtfHrasAutoRepository {

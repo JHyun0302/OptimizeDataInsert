@@ -14,12 +14,9 @@ import java.util.concurrent.*;
 @RequiredArgsConstructor
 public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
 
-    private final MultiThreadBatchInsertService multiThreadBatchInsertService;
+    private final BatchInsertService batchInsertService;
 
-    private static final int THREAD_COUNT =  Runtime.getRuntime().availableProcessors();
-
-    @Value("${spring.properties.hibernate.jdbc.batch_size}")
-    private int batchSize;
+    private static final int THREAD_COUNT = 8;
 
     public void runBatchInsert(List<TbDtfHrasAuto> dataList) {
         if (dataList == null || dataList.isEmpty()) {
@@ -28,21 +25,20 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
         }
 
         int totalSize = dataList.size();
-        int chunkSize = totalSize / THREAD_COUNT; // ✅ 각 스레드에 할당할 데이터 개수
-        int remaining = totalSize % THREAD_COUNT; // ✅ 나누어 떨어지지 않는 경우 추가 처리
+        int chunkSize = totalSize / THREAD_COUNT; // 스레드별 할당할 데이터 개수
+        int remaining = totalSize % THREAD_COUNT; // 남는 데이터 처리
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
-
-        log.info("Starting parallel batch insert for {} records, thread_count={}", totalSize, THREAD_COUNT);
+        log.info("Starting parallel batch insert for {} records with {} threads.", totalSize, THREAD_COUNT);
 
         int startIdx = 0;
 
         for (int i = 0; i < THREAD_COUNT; i++) {
-            int endIdx = startIdx + chunkSize + (i < remaining ? 1 : 0); // ✅ 데이터가 균등하게 분배되도록 설정
+            int endIdx = startIdx + chunkSize + (i < remaining ? 1 : 0);
             List<TbDtfHrasAuto> batch = dataList.subList(startIdx, endIdx);
             startIdx = endIdx;
 
-            executor.submit(() -> multiThreadBatchInsertService.processBatch(batch, batchSize));
+            executor.submit(() -> batchInsertService.processBatch(batch, 1000)); // batchSize=1000
         }
 
         executor.shutdown();

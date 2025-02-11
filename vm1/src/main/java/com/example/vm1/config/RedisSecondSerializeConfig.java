@@ -13,29 +13,27 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
-public class RedisSerializeConfig {
-    @Value("${spring.data.redis.host}")
+public class RedisSecondSerializeConfig {
+    @Value("${spring.redis.second.host}")
     private String host;
 
-    @Value("${spring.data.redis.port}")
+    @Value("${spring.redis.second.port}")
     private int port;
 
     @Bean
-    @Primary
-    public RedisConnectionFactory redisConnectionFactory() {
+    public RedisConnectionFactory secondRedisConnectionFactory() {
         RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(host, port);
         return new LettuceConnectionFactory(redisConfig);
     }
 
     @Bean
-    @Primary
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, String> secondRedisTemplate(RedisConnectionFactory secondRedisConnectionFactory) {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setConnectionFactory(secondRedisConnectionFactory);
         return redisTemplate;
     }
 }
+
 

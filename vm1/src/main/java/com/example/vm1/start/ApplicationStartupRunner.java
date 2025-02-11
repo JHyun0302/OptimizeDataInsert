@@ -7,17 +7,17 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DummyDataInsertEventListener {
+public class ApplicationStartupRunner {
 
     private final TimeRecord timeRecord;
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void scheduleInsertDummyData() {
-        timeRecord.insertDummyDataInRedis();
-    }
-
 //    @EventListener(ApplicationReadyEvent.class)
-//    public void InsertDummyDataInDataBase() {
-//        timeRecord.insertDummyDataInDataBase();
+//    public void scheduleInsertDummyData() {
+//        timeRecord.insertDummyDataInRedis();
 //    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void InsertDummyDataInDataBase() {
+        timeRecord.insertDummyDataInDataBase();
+    }
 }

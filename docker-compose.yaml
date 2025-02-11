@@ -72,6 +72,7 @@ services:
     depends_on:
       - oracle
       - redis
+      - redis-secondary
     environment:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
       - SPRING_DATASOURCE_USERNAME=SYSTEM
@@ -87,237 +88,239 @@ services:
       - SPRING_DATASOURCE_HIKARI_POOL-NAME=MyHikariPool   # 풀 이름 변경
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_REDIS_SECOND_HOST=redis-secondary
+      - SPRING_REDIS_SECOND_PORT=6379
       - spring.application.vm-index=0
       - spring.application.total-vms=17
 
-  vm2:
-    image: optimize-data-insert-vm2:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "8182:8080"
-    depends_on:
-      - oracle
-      - redis
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=oracle.jdbc.OracleDriver
-      #      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      #      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=10   # 최소 유휴 커넥션 (5 → 10)
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=100  # 최대 커넥션 풀 크기 (50 유지)
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=300000   # 커넥션 유휴 타임아웃 (60초 → 5분)
-      - SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT=30000  # 최대 커넥션 대기 시간 (30초)
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000   # 커넥션 최대 생명 주기 (30분)
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=MyHikariPool   # 풀 이름 변경
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=1
-      - spring.application.total-vms=17
-
-  vm3:
-    image: optimize-data-insert-vm3:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "883:8080"
-    depends_on:
-      - oracle
-      - redis
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=oracle.jdbc.OracleDriver
-      #      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      #      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=10   # 최소 유휴 커넥션 (5 → 10)
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=100   # 최대 커넥션 풀 크기 (50 유지)
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=300000   # 커넥션 유휴 타임아웃 (60초 → 5분)
-      - SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT=30000  # 최대 커넥션 대기 시간 (30초)
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000   # 커넥션 최대 생명 주기 (30분)
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=MyHikariPool   # 풀 이름 변경
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=2
-      - spring.application.total-vms=17
-
-  vm4:
-    image: optimize-data-insert-vm4:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "8184:8080"
-    depends_on:
-      - oracle
-      - redis
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=3
-      - spring.application.total-vms=17
-
-  vm5:
-    image: optimize-data-insert-vm5:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "8185:8080"
-    depends_on:
-      - oracle
-      - redis
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=4
-      - spring.application.total-vms=17
-
-  vm6:
-    image: optimize-data-insert-vm6:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "8186:8080"
-    depends_on:
-      - oracle
-      - redis-secondary
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
-      - SPRING_DATA_REDIS_HOST=redis-secondary
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=5
-      - spring.application.total-vms=17
-
-  vm7:
-    image: optimize-data-insert-vm7:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "8187:8080"
-    depends_on:
-      - oracle
-      - redis-secondary
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
-      - SPRING_DATA_REDIS_HOST=redis-secondary
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=6
-      - spring.application.total-vms=17
-
-  vm8:
-    image: optimize-data-insert-vm8:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "8188:8080"
-    depends_on:
-      - oracle
-      - redis-secondary
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
-      - SPRING_DATA_REDIS_HOST=redis-secondary
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=7
-      - spring.application.total-vms=17
-
-  vm9:
-    image: optimize-data-insert-vm9:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "8189:8080"
-    depends_on:
-      - oracle
-      - redis-secondary
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
-      - SPRING_DATA_REDIS_HOST=redis-secondary
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=8
-      - spring.application.total-vms=17
-
-  vm10:
-    image: optimize-data-insert-vm10:1.0.0-SNAPSHOT
-    networks:
-      - optimize_data_insert_network
-    ports:
-      - "8190:8080"
-    depends_on:
-      - oracle
-      - redis-secondary
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
-      - SPRING_DATASOURCE_USERNAME=SYSTEM
-      - SPRING_DATASOURCE_PASSWORD=oracle
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
-      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
-      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
-      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
-      - SPRING_DATA_REDIS_HOST=redis-secondary
-      - SPRING_DATA_REDIS_PORT=6379
-      - spring.application.vm-index=9
-      - spring.application.total-vms=17
+#  vm2:
+#    image: optimize-data-insert-vm2:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "8182:8080"
+#    depends_on:
+#      - oracle
+#      - redis
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=oracle.jdbc.OracleDriver
+#      #      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      #      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=10   # 최소 유휴 커넥션 (5 → 10)
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=100  # 최대 커넥션 풀 크기 (50 유지)
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=300000   # 커넥션 유휴 타임아웃 (60초 → 5분)
+#      - SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT=30000  # 최대 커넥션 대기 시간 (30초)
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000   # 커넥션 최대 생명 주기 (30분)
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=MyHikariPool   # 풀 이름 변경
+#      - SPRING_DATA_REDIS_HOST=redis
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=1
+#      - spring.application.total-vms=17
+#
+#  vm3:
+#    image: optimize-data-insert-vm3:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "883:8080"
+#    depends_on:
+#      - oracle
+#      - redis
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=oracle.jdbc.OracleDriver
+#      #      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      #      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=10   # 최소 유휴 커넥션 (5 → 10)
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=100   # 최대 커넥션 풀 크기 (50 유지)
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=300000   # 커넥션 유휴 타임아웃 (60초 → 5분)
+#      - SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT=30000  # 최대 커넥션 대기 시간 (30초)
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000   # 커넥션 최대 생명 주기 (30분)
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=MyHikariPool   # 풀 이름 변경
+#      - SPRING_DATA_REDIS_HOST=redis
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=2
+#      - spring.application.total-vms=17
+#
+#  vm4:
+#    image: optimize-data-insert-vm4:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "8184:8080"
+#    depends_on:
+#      - oracle
+#      - redis
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+#      - SPRING_DATA_REDIS_HOST=redis
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=3
+#      - spring.application.total-vms=17
+#
+#  vm5:
+#    image: optimize-data-insert-vm5:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "8185:8080"
+#    depends_on:
+#      - oracle
+#      - redis
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+#      - SPRING_DATA_REDIS_HOST=redis
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=4
+#      - spring.application.total-vms=17
+#
+#  vm6:
+#    image: optimize-data-insert-vm6:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "8186:8080"
+#    depends_on:
+#      - oracle
+#      - redis-secondary
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+#      - SPRING_DATA_REDIS_HOST=redis-secondary
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=5
+#      - spring.application.total-vms=17
+#
+#  vm7:
+#    image: optimize-data-insert-vm7:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "8187:8080"
+#    depends_on:
+#      - oracle
+#      - redis-secondary
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+#      - SPRING_DATA_REDIS_HOST=redis-secondary
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=6
+#      - spring.application.total-vms=17
+#
+#  vm8:
+#    image: optimize-data-insert-vm8:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "8188:8080"
+#    depends_on:
+#      - oracle
+#      - redis-secondary
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+#      - SPRING_DATA_REDIS_HOST=redis-secondary
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=7
+#      - spring.application.total-vms=17
+#
+#  vm9:
+#    image: optimize-data-insert-vm9:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "8189:8080"
+#    depends_on:
+#      - oracle
+#      - redis-secondary
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+#      - SPRING_DATA_REDIS_HOST=redis-secondary
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=8
+#      - spring.application.total-vms=17
+#
+#  vm10:
+#    image: optimize-data-insert-vm10:1.0.0-SNAPSHOT
+#    networks:
+#      - optimize_data_insert_network
+#    ports:
+#      - "8190:8080"
+#    depends_on:
+#      - oracle
+#      - redis-secondary
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle:1521/ORCL
+#      - SPRING_DATASOURCE_USERNAME=SYSTEM
+#      - SPRING_DATASOURCE_PASSWORD=oracle
+#      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+#      - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=5
+#      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=50
+#      - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=60000
+#      - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000
+#      - SPRING_DATASOURCE_HIKARI_POOL-NAME=SharedHikariPool
+#      - SPRING_DATA_REDIS_HOST=redis-secondary
+#      - SPRING_DATA_REDIS_PORT=6379
+#      - spring.application.vm-index=9
+#      - spring.application.total-vms=17
 
 networks:
   optimize_data_insert_network:
