@@ -112,7 +112,7 @@ public void saveHrasDataInRedis(int batchIndex) {
     }
 
     private TbDtfHrasAuto generateDummyRecord(int csIdNumber) {
-        String csId = "CS_" + csIdNumber; // CS_ID 형식: 1부터 시작하여 1씩 증가
+        String csId = "CS_" + System.nanoTime() + "_" + csIdNumber; // CS_ID를 고유한 값으로 생성
         long projectId = 1000000 + RANDOM.nextInt(100000); // PROJECT_ID: 랜덤
         String name = "Project-" + csIdNumber; // NAME
         String riverName = "River-" + (RANDOM.nextInt(5) + 1); // RIVER_NAME: River-1 ~ River-5
