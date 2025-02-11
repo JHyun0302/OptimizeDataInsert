@@ -2,6 +2,7 @@ package com.example.vm5.redis;
 
 import com.example.vm5.entity.TbDtfHrasAuto;
 import com.example.vm5.entity.TbDtfHrasAutoPk;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
@@ -10,11 +11,15 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -50,28 +55,60 @@ public class RedisInsertService {
 
     @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
     @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
-    public void saveHrasDataInRedis(int batchIndex) {
-        // VM별 CS_ID 시작점을 설정 (5만 개씩 증가)
-        int baseIndex = ((vmIndex * 6) + batchIndex) * batchSize;
+public void saveHrasDataInRedis(int batchIndex) {
+    int baseIndex = ((vmIndex * 60) + batchIndex) * batchSize;
+    String uniqueKey = "[VM-" + vmIndex + "] " + REDIS_KEY_PREFIX + ":" + System.currentTimeMillis();
 
-        // Redis 키는 VM별로 다르게 생성
-        String uniqueKey = "[VM-" + vmIndex + "] " + REDIS_KEY_PREFIX + ":" + System.currentTimeMillis();
+    List<String> jsonRecords = generateJsonRecords(baseIndex, batchSize);
 
-        timer.record(() -> {
-            try {
-                for (int i = 0; i < batchSize; i++) {
-                    int csIdNumber = baseIndex + i + 1; // CS_ID 1부터 증가
-                    TbDtfHrasAuto record = generateDummyRecord(csIdNumber);
-                    String jsonData = objectMapper.writeValueAsString(record);
-                    redisTemplate.opsForList().rightPush(uniqueKey, jsonData);
+    if (jsonRecords.isEmpty()) {
+        log.warn("No records to insert into Redis for key: {}", uniqueKey);
+        return;
+    }
+
+    // 🚀 한 번의 Pipeline에서 10,000개씩 묶어서 전송 (최적화)
+    int optimalBatchSize = Math.min(batchSize, 10000);
+
+    timer.record(() -> {
+        try {
+            redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+                for (int i = 0; i < jsonRecords.size(); i += optimalBatchSize) {
+                    List<String> batch = jsonRecords.subList(i, Math.min(i + optimalBatchSize, jsonRecords.size()));
+                    byte[][] values = batch.stream().map(String::getBytes).toArray(byte[][]::new);
+                    connection.listCommands().rPush(uniqueKey.getBytes(), values); // 🚀 한 번에 여러 개의 데이터를 `RPUSH`
                 }
-                successCounter.increment();
-            } catch (Exception e) {
-                failureCounter.increment();
-                log.error("Failed to serialize HRAS data: ", e);
-            }
-        });
-        //log.info("Inserted {} records in Redis for key: {}", batchSize, uniqueKey);
+                return null;
+            });
+            successCounter.increment();
+        } catch (Exception e) {
+            failureCounter.increment();
+            log.error("Failed to insert HRAS data into Redis", e);
+        }
+    });
+}
+
+
+    /**
+     * 주어진 범위의 데이터를 JSON 형태로 변환하여 리스트로 반환
+     */
+    private List<String> generateJsonRecords(int baseIndex, int batchSize) {
+        return IntStream.range(0, batchSize)
+                .mapToObj(i -> generateDummyRecordJson(baseIndex + i + 1))
+                .filter(Objects::nonNull)  // JSON 변환 실패한 경우 제외
+                .toList();
+    }
+
+    /**
+     * 단일 객체를 JSON 문자열로 변환
+     */
+    private String generateDummyRecordJson(int csIdNumber) {
+        try {
+            TbDtfHrasAuto record = generateDummyRecord(csIdNumber);
+            return objectMapper.writeValueAsString(record);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize HRAS data: CS_ID={}", csIdNumber, e);
+            return null;  // 실패한 경우 제외
+        }
     }
 
     private TbDtfHrasAuto generateDummyRecord(int csIdNumber) {

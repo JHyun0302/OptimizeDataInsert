@@ -32,7 +32,7 @@ public class TimeRecord {
         long startTime = System.currentTimeMillis();
         int batchIndex = 0;
 
-        for (int i = 0; i < 6; i++) { // VM별 6개의 Redis 키 생성
+        for (int i = 0; i < 60; i++) { // VM별 60개의 Redis 키 생성
             redisInsertService.saveHrasDataInRedis(batchIndex);
             batchIndex++; // 배치 인덱스 증가
         }
