@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import io.micrometer.core.annotation.Counted;
@@ -113,7 +114,7 @@ public class RedisInsertService {
     }
 
     private TbDtfHrasAuto generateDummyRecord(int csIdNumber) {
-        String csId = "CS_" + System.nanoTime() + "_" + csIdNumber; // CS_ID를 고유한 값으로 생성
+        String csId = "CS_" + UUID.randomUUID().toString();
         long projectId = 1000000 + RANDOM.nextInt(100000); // PROJECT_ID: 랜덤
         String name = "Project-" + csIdNumber; // NAME
         String riverName = "River-" + (RANDOM.nextInt(5) + 1); // RIVER_NAME: River-1 ~ River-5
