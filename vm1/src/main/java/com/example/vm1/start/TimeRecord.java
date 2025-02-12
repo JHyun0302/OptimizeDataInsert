@@ -1,6 +1,6 @@
 package com.example.vm1.start;
 
-import com.example.vm1.Thread.DataBaseInsertService;
+import com.example.vm1.service.DataBaseInsertService;
 import com.example.vm1.redis.RedisInsertService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

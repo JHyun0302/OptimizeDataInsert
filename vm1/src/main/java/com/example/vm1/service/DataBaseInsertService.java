@@ -1,4 +1,4 @@
-package com.example.vm1.Thread;
+package com.example.vm1.service;
 
 import com.example.vm1.entity.TbDtfHrasAuto;
 import com.example.vm1.repository.TbDtfHrasAutoRepository;
@@ -17,13 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
