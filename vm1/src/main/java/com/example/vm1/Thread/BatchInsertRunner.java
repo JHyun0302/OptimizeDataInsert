@@ -5,5 +5,5 @@ import com.example.vm1.entity.TbDtfHrasAuto;
 import java.util.List;
 
 public interface BatchInsertRunner {
-    int runBatchInsert(List<TbDtfHrasAuto> dataList);
+    void runBatchInsert(List<TbDtfHrasAuto> dataList, int threadCount);
 }

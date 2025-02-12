@@ -21,10 +21,9 @@ public class SingleThreadBatchInsertRunner implements BatchInsertRunner {
     @Value("${spring.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
-    public int runBatchInsert(List<TbDtfHrasAuto> dataList) {
+    public void runBatchInsert(List<TbDtfHrasAuto> dataList, int threadCount) {
         if (dataList == null || dataList.isEmpty()) {
             log.info("No data to insert.");
-            return 0;
         }
 
         log.info("Starting batch insert for {} records", dataList.size());
@@ -42,7 +41,6 @@ public class SingleThreadBatchInsertRunner implements BatchInsertRunner {
         }
 
         log.info("Batch insert completed!");
-        return 0;
     }
 }
 
