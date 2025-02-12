@@ -102,7 +102,7 @@ public class DataBaseInsertService {
         int totalFetched = 0;
         List<TbDtfHrasAuto> totalBatchData = new ArrayList<>();
 
-        int BATCH_KEY_SIZE = 100; // 🚀 한 번에 100개씩 요청
+        int BATCH_KEY_SIZE = 50; // 한 번에 50개씩 요청
 
         for (int i = 0; i < keyList.size(); i += BATCH_KEY_SIZE) {
             int endIdx = Math.min(i + BATCH_KEY_SIZE, keyList.size());
@@ -116,7 +116,7 @@ public class DataBaseInsertService {
                     return null;
                 });
 
-                log.info("✅ lRange executed for {} keys, results size: {}", subKeys.size(), results.size());
+//                log.info("lRange executed for {} keys, results size: {}", subKeys.size(), results.size());
 
                 for (int j = 0; j < results.size(); j++) {
                     Object result = results.get(j);

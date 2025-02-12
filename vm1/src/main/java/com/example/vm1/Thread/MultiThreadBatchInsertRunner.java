@@ -40,7 +40,7 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
             List<TbDtfHrasAuto> batch = dataList.subList(startIdx, endIdx);
             startIdx = endIdx;
 
-            futures.add(executor.submit(() -> batchInsertService.processBatch(batch, 1000)));
+            futures.add(executor.submit(() -> batchInsertService.processBatch(batch, 10000)));
         }
 
         executor.shutdown();
@@ -53,13 +53,13 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
         int totalInserted = 0;
 
         // 모든 Future 결과 확인
-        for (Future<Integer> future : futures) {
-            try {
-                log.info("Inserted {} records into DB", future.get());
-            } catch (Exception e) {
-                log.error("Error while inserting batch", e);
-            }
-        }
+//        for (Future<Integer> future : futures) {
+//            try {
+//                log.info("Inserted {} records into DB", future.get());
+//            } catch (Exception e) {
+//                log.error("Error while inserting batch", e);
+//            }
+//        }
 
         return totalInserted; // 총 Insert된 개수 반환
     }
