@@ -47,4 +47,30 @@ public class RedisSecondSerializeConfig {
     }
 }
 
+//@Configuration
+//public class RedisSecondSerializeConfig {
+//    @Value("${spring.redis.second.host}")
+//    private String host;
+//
+//    @Value("${spring.redis.second.port}")
+//    private int port;
+//
+//    @Bean
+//    @Qualifier("secondRedisConnectionFactory")
+//    public RedisConnectionFactory secondRedisConnectionFactory() {
+//        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(host, port);
+//        return new LettuceConnectionFactory(redisConfig);
+//    }
+//
+//    @Bean
+//    @Qualifier("secondRedisTemplate")
+//    public RedisTemplate<String, String> secondRedisTemplate(@Qualifier("secondRedisConnectionFactory") RedisConnectionFactory secondRedisConnectionFactory) {
+//        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+//        redisTemplate.setKeySerializer(new StringRedisSerializer());
+//        redisTemplate.setValueSerializer(new StringRedisSerializer());
+//        redisTemplate.setConnectionFactory(secondRedisConnectionFactory);
+//        return redisTemplate;
+//    }
+//}
+
 

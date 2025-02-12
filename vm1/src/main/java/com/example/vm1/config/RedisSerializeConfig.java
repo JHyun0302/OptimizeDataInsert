@@ -46,3 +46,28 @@ public class RedisSerializeConfig {
     }
 }
 
+//@Configuration
+//public class RedisSerializeConfig {
+//    @Value("${spring.data.redis.host}")
+//    private String host;
+//
+//    @Value("${spring.data.redis.port}")
+//    private int port;
+//
+//    @Bean
+//    @Primary
+//    public RedisConnectionFactory redisConnectionFactory() {
+//        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(host, port);
+//        return new LettuceConnectionFactory(redisConfig);
+//    }
+//
+//    @Bean
+//    @Primary
+//    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+//        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+//        redisTemplate.setKeySerializer(new StringRedisSerializer());
+//        redisTemplate.setValueSerializer(new StringRedisSerializer());
+//        redisTemplate.setConnectionFactory(redisConnectionFactory);
+//        return redisTemplate;
+//    }
+//}
