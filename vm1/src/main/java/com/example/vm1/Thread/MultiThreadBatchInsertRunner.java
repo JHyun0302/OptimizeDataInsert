@@ -18,10 +18,10 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
 
     private static final int THREAD_COUNT = 8;
 
-    public void runBatchInsert(List<TbDtfHrasAuto> dataList) {
+    public int runBatchInsert(List<TbDtfHrasAuto> dataList) {
         if (dataList == null || dataList.isEmpty()) {
             log.info("No data to insert.");
-            return;
+            return 0;
         }
 
         int totalSize = dataList.size();
@@ -29,7 +29,9 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
         int remaining = totalSize % THREAD_COUNT; // 남는 데이터 처리
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
-        log.info("Starting parallel batch insert for {} records with {} threads.", totalSize, THREAD_COUNT);
+        List<Future<Integer>> futures = new ArrayList<>();
+
+        log.info("Starting parallel batch insert for {} records with {} threads. chunkSize, remaining = {}, {}", totalSize, THREAD_COUNT, chunkSize, remaining);
 
         int startIdx = 0;
 
@@ -38,7 +40,7 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
             List<TbDtfHrasAuto> batch = dataList.subList(startIdx, endIdx);
             startIdx = endIdx;
 
-            executor.submit(() -> batchInsertService.processBatch(batch, 1000)); // batchSize=1000
+            futures.add(executor.submit(() -> batchInsertService.processBatch(batch, 1000)));
         }
 
         executor.shutdown();
@@ -47,5 +49,18 @@ public class MultiThreadBatchInsertRunner implements BatchInsertRunner {
         } catch (InterruptedException e) {
             log.error("Batch insert interrupted", e);
         }
+
+        int totalInserted = 0;
+
+        // 모든 Future 결과 확인
+        for (Future<Integer> future : futures) {
+            try {
+                log.info("Inserted {} records into DB", future.get());
+            } catch (Exception e) {
+                log.error("Error while inserting batch", e);
+            }
+        }
+
+        return totalInserted; // 총 Insert된 개수 반환
     }
 }

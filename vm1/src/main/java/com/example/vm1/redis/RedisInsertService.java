@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import io.micrometer.core.annotation.Counted;
@@ -70,6 +71,7 @@ public class RedisInsertService {
 
         // 🚀 한 번의 Pipeline에서 10,000개씩 묶어서 전송 (최적화)
         int optimalBatchSize = Math.min(batchSize, 10000);
+        AtomicInteger totalInserted = new AtomicInteger(); // 삽입된 총 개수를 안전하게 증가
 
         timer.record(() -> {
             try {
@@ -78,10 +80,13 @@ public class RedisInsertService {
                         List<String> batch = jsonRecords.subList(i, Math.min(i + optimalBatchSize, jsonRecords.size()));
                         byte[][] values = batch.stream().map(String::getBytes).toArray(byte[][]::new);
                         connection.listCommands().rPush(uniqueKey.getBytes(), values); // 🚀 한 번에 여러 개의 데이터를 `RPUSH`
+                        totalInserted.addAndGet(batch.size()); // 성공적으로 삽입한 개수 누적
                     }
                     return null;
                 });
                 successCounter.increment();
+                log.info("✅ Successfully inserted {} records into Redis (Key: {}). Total Success Count: {}", totalInserted.get(), uniqueKey, successCounter.count());
+
             } catch (Exception e) {
                 failureCounter.increment();
                 log.error("Failed to insert HRAS data into Redis", e);

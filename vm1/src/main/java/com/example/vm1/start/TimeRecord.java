@@ -25,19 +25,10 @@ public class TimeRecord {
 
     private final RedisInsertService redisInsertService;
 
-    private final Counter successCounter;
-    private final Counter failureCounter;
-    private final Timer timer;
-
-    public TimeRecord(DataBaseInsertService dataBaseInsertService, RedisInsertService redisInsertService, @Qualifier("multiThreadBatchInsertRunner") BatchInsertRunner batchInsertRunner, MeterRegistry meterRegistry) {
+    public TimeRecord(DataBaseInsertService dataBaseInsertService, RedisInsertService redisInsertService) {
         this.dataBaseInsertService = dataBaseInsertService;
         this.redisInsertService = redisInsertService;
-
-        this.successCounter = meterRegistry.counter("dummy_data.insert.success");
-        this.failureCounter = meterRegistry.counter("dummy_data.insert.failure");
-        this.timer = meterRegistry.timer("dummy_data.insert.timer");
     }
-
 
     public void insertDummyDataInRedis() {
         long startTime = System.currentTimeMillis();
@@ -52,8 +43,6 @@ public class TimeRecord {
         timeTrace(startTime, endTime);
     }
 
-    @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
-    @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
     public void insertDummyDataInDataBase() {
         long startTime = System.currentTimeMillis();
 

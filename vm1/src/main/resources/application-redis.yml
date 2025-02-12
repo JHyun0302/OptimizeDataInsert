@@ -3,8 +3,24 @@ spring:
     redis:
       host: ${SPRING_DATA_REDIS_SERIALIZE_HOST:redis}
       port: ${SPRING_DATA_REDIS_SERIALIZE_PORT:6379}
+      timeout: 300000  # 5분으로 증가
+      lettuce:
+        pool:
+          max-active: 100 # 최대 커넥션 개수 (동시 실행 커넥션 수)
+          max-idle: 10    # 최대 유휴 커넥션
+          min-idle: 5     # 최소 유휴 커넥션
+          max-wait: 20000 # 최대 대기 시간 (20초)
+        tcp-keepalive: true  # Redis 연결이 끊어지지 않도록 설정
 
   redis:
     second:
       host: ${SPRING_REDIS_SECOND_HOST:redis}
       port: ${SPRING_REDIS_SECOND_PORT:6379}
+      timeout: 300000  # 5분으로 증가
+      lettuce:
+        pool:
+          max-active: 100
+          max-idle: 10
+          min-idle: 5
+          max-wait: 20000
+        tcp-keepalive: true  # Redis 연결이 끊어지지 않도록 설정
