@@ -5,12 +5,12 @@ services:
     networks:
       - optimize_data_insert_network
     ports:
-      - "1522:1521"
+      - "1521:1521"  # R2DBC 기본 포트
     environment:
       - TZ=Asia/Seoul
       - ORACLE_ALLOW_REMOTE=true
-      - ORACLE_DISABLE_ASYNCH_IO=true
-      - ORACLE_SID=ORCL  # SID를 ORCL로 설정
+      - ENABLE_TCPS=true  # R2DBC에서 TCP 활성화
+      - ORACLE_SID=ORCL  # SID 기반 연결
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
@@ -81,7 +81,7 @@ services:
 #      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.OracleDialect
 #      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
       - SPRING_DATASOURCE_HIKARI_MINIMUM-IDLE=10   # 최소 유휴 커넥션 (5 → 10)
-      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=100   # 최대 커넥션 풀 크기 (50 유지)
+      - SPRING_DATASOURCE_HIKARI_MAXIMUM-POOL-SIZE=200   # 최대 커넥션 풀 크기 (50 유지)
       - SPRING_DATASOURCE_HIKARI_IDLE-TIMEOUT=300000   # 커넥션 유휴 타임아웃 (60초 → 5분)
       - SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT=30000  # 최대 커넥션 대기 시간 (30초)
       - SPRING_DATASOURCE_HIKARI_MAX-LIFETIME=1800000   # 커넥션 최대 생명 주기 (30분)

@@ -1,21 +1,12 @@
 package com.example.vm1.start;
 
-import com.example.vm1.Thread.BatchInsertRunner;
-import com.example.vm1.entity.TbDtfHrasAuto;
 import com.example.vm1.Thread.DataBaseInsertService;
 import com.example.vm1.redis.RedisInsertService;
-import io.micrometer.core.annotation.Counted;
-import io.micrometer.core.annotation.Timed;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 @Slf4j
 @Component

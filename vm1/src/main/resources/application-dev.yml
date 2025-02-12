@@ -1,16 +1,9 @@
 spring:
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@//oracle:1521/ORCL
+    url: r2dbc:oracle:thin:@//oracle:1521/ORCL
     username: SYSTEM
     password: oracle
-    hikari:
-      minimum-idle: 10        # 최소 유휴 커넥션 수 (기본 5 → 10으로 증가)
-      maximum-pool-size: 50   # 최대 커넥션 풀 크기 (기본 20 → 50으로 증가)
-      idle-timeout: 300000    # 커넥션 유휴 타임아웃 (60초 → 5분)
-      connection-timeout: 30000  # 최대 커넥션 대기 시간 (30초)
-      max-lifetime: 1800000   # 커넥션 최대 생명 주기 (30분)
-      pool-name: MyHikariPool # 풀 이름
 
   properties:
     hibernate:
