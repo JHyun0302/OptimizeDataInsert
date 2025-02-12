@@ -91,8 +91,7 @@ public class DataBaseInsertService {
     }
 
     private int fetchDataFromRedis(RedisTemplate<String, String> redisTemplate) {
-//        Set<String> keys = scanKeys(redisTemplate, REDIS_KEY_PATTERN);
-        Set<String> keys = redisTemplate.keys(REDIS_KEY_PATTERN);
+        Set<String> keys = scanKeys(redisTemplate, REDIS_KEY_PATTERN);
 
         if (keys.isEmpty()) {
             return 0;
@@ -103,7 +102,7 @@ public class DataBaseInsertService {
         int totalFetched = 0;
         List<TbDtfHrasAuto> totalBatchData = new ArrayList<>();
 
-        int BATCH_KEY_SIZE = 50; // 🚀 한 번에 100개씩 요청
+        int BATCH_KEY_SIZE = 100; // 🚀 한 번에 100개씩 요청
 
         for (int i = 0; i < keyList.size(); i += BATCH_KEY_SIZE) {
             int endIdx = Math.min(i + BATCH_KEY_SIZE, keyList.size());
@@ -151,7 +150,7 @@ public class DataBaseInsertService {
 
         ScanOptions options = ScanOptions.scanOptions()
                 .match(pattern)  // 패턴 매칭
-                .count(100)      // 한 번에 100개씩 가져오기
+                .count(300)      // 한 번에 100개씩 가져오기
                 .build();
 
         Cursor<byte[]> cursor = redisTemplate.executeWithStickyConnection(
