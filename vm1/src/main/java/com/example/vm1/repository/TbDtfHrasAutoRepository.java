@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -24,12 +25,25 @@ import java.util.Map;
  * R2dbc
  */
 @Repository
-public interface TbDtfHrasAutoRepository extends ReactiveCrudRepository<TbDtfHrasAuto, TbDtfHrasAutoPk> {
+public interface TbDtfHrasAutoRepository extends ReactiveCrudRepository<TbDtfHrasAuto, String> {
 
     @Query("INSERT INTO tb_dtf_hras_auto " +
             "(cs_id, pdct_dt, project_id, name, river_name, river_reach, river_code, wtlv_val, flow_val, vel_val) " +
-            "VALUES (:#{#auto.pk.csId}, :#{#auto.pk.pdctDt}, :#{#auto.projectId}, :#{#auto.name}, " +
-            ":#{#auto.riverName}, :#{#auto.riverReach}, :#{#auto.riverCode}, :#{#auto.wtlvVal}, :#{#auto.flowVal}, :#{#auto.velVal})")
-    Mono<Void> insertAuto(@Param("auto") TbDtfHrasAuto auto);
+            "VALUES (:csId, :pdctDt, :projectId, :name, :riverName, :riverReach, :riverCode, :wtlvVal, :flowVal, :velVal)")
+    Mono<Void> insertAuto(
+            @Param("csId") String csId,
+            @Param("pdctDt") LocalDateTime pdctDt,
+            @Param("projectId") Long projectId,
+            @Param("name") String name,
+            @Param("riverName") String riverName,
+            @Param("riverReach") String riverReach,
+            @Param("riverCode") Long riverCode,
+            @Param("wtlvVal") Long wtlvVal,
+            @Param("flowVal") Long flowVal,
+            @Param("velVal") Long velVal
+    );
+
+    @Query("DELETE FROM tb_dtf_hras_auto WHERE cs_id = :csId AND pdct_dt = :pdctDt")
+    Mono<Void> deleteByCompositeKey(@Param("csId") String csId, @Param("pdctDt") LocalDateTime pdctDt);
 }
 

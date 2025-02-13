@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Slf4j
@@ -62,61 +63,96 @@ public class DataBaseInsertService {
     @Timed(value = "dummy_data.insert.time", description = "Time taken to insert dummy data")
     @Counted(value = "dummy_data.insert.count", description = "Number of times dummy data is inserted")
     public Mono<Void> processDataInBatches() {
-        return Flux.merge(
-                        fetchDataFromRedis(redisTemplate),
-                        fetchDataFromRedis(secondRedisTemplate)
+        AtomicInteger totalCount = new AtomicInteger(0); // 전체 데이터 개수 카운트
+
+        return Flux.concat(
+                        fetchDataAndInsert(redisTemplate, totalCount),
+                        fetchDataAndInsert(secondRedisTemplate, totalCount)
                 )
-                .buffer(BATCH_INSERT_SIZE) // 데이터를 묶음
-                .flatMap(this::batchInsertData) // List<TbDtfHrasAuto>를 전달하도록 수정
-                .then()
-                .doOnSuccess(ignored -> log.info("All batches processed successfully"));
+                .then(Mono.fromRunnable(() -> log.info("Redis에서 가져온 총 데이터 개수: {}", totalCount.get()))) // 전체 개수 로깅
+                .doOnSuccess(ignored -> log.info("All batches processed successfully"))
+                .then();
     }
 
-    private Flux<TbDtfHrasAuto> fetchDataFromRedis(ReactiveRedisTemplate<String, String> redisTemplate) {
+    private Flux<Void> fetchDataAndInsert(ReactiveRedisTemplate<String, String> redisTemplate, AtomicInteger totalCount) {
         return scanKeys(redisTemplate, REDIS_KEY_PATTERN)
-                .buffer(BATCH_KEY_SIZE) // BATCH_KEY_SIZE 단위로 키를 가져옴
-                .flatMap(batchKeys -> fetchBatchFromRedis(redisTemplate, batchKeys)
-                        .subscribeOn(Schedulers.boundedElastic()) // 병렬 I/O 스레드 사용
-                )
-                .flatMapIterable(list -> list);
+                .buffer(100) // 한 번에 100개 키 가져오기
+                .concatMap(batchKeys -> fetchBatchFromRedis(redisTemplate, batchKeys, totalCount)
+                        .flatMap(this::batchInsertData) // 가져온 데이터를 즉시 DB에 삽입
+                );
     }
 
-    private Mono<List<TbDtfHrasAuto>> fetchBatchFromRedis(ReactiveRedisTemplate<String, String> redisTemplate, List<String> keys) {
+    private Mono<List<TbDtfHrasAuto>> fetchBatchFromRedis(ReactiveRedisTemplate<String, String> redisTemplate, List<String> keys, AtomicInteger totalCount) {
         return Flux.fromIterable(keys)
                 .flatMap(key -> redisTemplate.opsForList().range(key, 0, -1)
-                        .flatMap(json -> Mono.justOrEmpty(deserializeJson(json)))
+                        .flatMap(json -> {
+                            TbDtfHrasAuto data = deserializeJson(json);
+                            if (data == null || data.getCsId() == null || data.getPdctDt() == null) {
+                                return Mono.empty(); // NULL 데이터 제외
+                            }
+                            return Mono.just(data);
+                        })
                         .collectList()
-                        .doOnNext(list -> redisTemplate.delete(key).subscribe()) // 데이터 삭제
+                        .flatMap(list -> redisTemplate.delete(key)
+                                .thenReturn(list) // 삭제 후 데이터 반환
+                        )
                 )
                 .flatMapIterable(list -> list)
-                .collectList();
+                .doOnNext(data -> totalCount.incrementAndGet()) // 전체 개수 증가
+                .collectList()
+                .doOnSuccess(list -> log.info("Redis에서 가져온 데이터 개수: {}", list.size())); // 가져온 개수만 로깅
     }
 
     private Flux<String> scanKeys(ReactiveRedisTemplate<String, String> redisTemplate, String pattern) {
         return redisTemplate.scan(ScanOptions.scanOptions()
                 .match(pattern)
-                .count(300) // 한 번에 300개씩 스캔
+                .count(100) // 🔥 한 번에 100개씩 키 스캔
                 .build()
         );
     }
 
     private Mono<Void> batchInsertData(List<TbDtfHrasAuto> dataList) {
-        if (dataList.isEmpty()) {
-            return Mono.empty();
-        }
-        return Flux.fromIterable(dataList)
-                .buffer(BATCH_INSERT_SIZE)
-                .flatMap(repository::saveAll, 8) // 병렬 처리
-                .as(transactionalOperator::transactional)
-                .then();
+        return transactionalOperator.execute(transaction ->
+                Flux.fromIterable(dataList)
+                        .buffer(BATCH_INSERT_SIZE)
+                        .concatMap(batch -> {
+                            log.info("🔥 DB에 {}건 삽입 시도 중...", batch.size());
+                            return Flux.fromIterable(batch)
+                                    .concatMap(data -> repository.insertAuto(
+                                            data.getCsId(),
+                                            data.getPdctDt(),
+                                            data.getProjectId(),
+                                            data.getName(),
+                                            data.getRiverName(),
+                                            data.getRiverReach(),
+                                            data.getRiverCode(),
+                                            data.getWtlvVal(),
+                                            data.getFlowVal(),
+                                            data.getVelVal()
+                                    ).doOnSuccess(v -> log.info("✅ DB INSERT 성공: {}", data.getCsId())))
+                                    .onErrorContinue((throwable, obj) -> log.error("DB INSERT 오류 발생: {}, 데이터: {}", throwable.getMessage(), obj));
+                        })
+                        .collectList() // Flux → Mono 변환 (commit 보장)
+                        .thenReturn(transaction) // 트랜잭션 유지
+        ).then(); // 최종적으로 Mono<Void> 반환
     }
 
     private TbDtfHrasAuto deserializeJson(String jsonData) {
         try {
-            return objectMapper.readValue(jsonData, TbDtfHrasAuto.class);
+            TbDtfHrasAuto auto = objectMapper.readValue(jsonData, TbDtfHrasAuto.class);
+            if (auto.getPk() != null) {
+                auto.setCsId(auto.getPk().getCsId());  // 🔥 pk 값을 직접 매핑
+                auto.setPdctDt(auto.getPk().getPdctDt());
+            }
+            if (auto.getCsId() == null || auto.getPdctDt() == null) {
+                log.error("JSON에서 PK 필드가 NULL입니다! JSON: {}", jsonData);
+                return null;
+            }
+            return auto;
         } catch (Exception e) {
-            log.error("⚠️ Failed to deserialize HRAS data: ", e);
+            log.error("⚠️ JSON Deserialization 오류 발생: ", e);
             return null;
         }
     }
+
 }

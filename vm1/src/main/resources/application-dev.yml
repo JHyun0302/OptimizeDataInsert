@@ -1,9 +1,10 @@
 spring:
-  datasource:
-    driver-class-name: oracle.jdbc.OracleDriver
+  r2dbc:
     url: r2dbc:oracle:thin:@//oracle:1521/ORCL
     username: SYSTEM
     password: oracle
+    hikari:
+      auto-commit: true
 
   properties:
     hibernate:

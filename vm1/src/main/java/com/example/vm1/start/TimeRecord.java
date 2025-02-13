@@ -38,7 +38,7 @@ public class TimeRecord {
         long startTime = System.currentTimeMillis();
 
         // Redis에서 일정 크기씩 데이터를 가져오고, 가져온 데이터를 즉시 DB에 Insert
-        dataBaseInsertService.processDataInBatches();
+        dataBaseInsertService.processDataInBatches().block();
 
         long endTime = System.currentTimeMillis();
         timeTrace(startTime, endTime);

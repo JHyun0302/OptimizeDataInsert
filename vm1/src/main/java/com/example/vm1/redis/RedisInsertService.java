@@ -133,7 +133,7 @@ public class RedisInsertService {
         TbDtfHrasAutoPk pk = new TbDtfHrasAutoPk(csId, pdctDt);
 
         return TbDtfHrasAuto.builder()
-                .pk(pk)
+//                .pk(pk)
                 .projectId(projectId)
                 .name(name)
                 .riverName(riverName)
